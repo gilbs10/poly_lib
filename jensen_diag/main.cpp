@@ -28,7 +28,9 @@ void count(int n, int num_of_threads){
 //#pragma omp parallel for num_threads(2) 
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
-            cout << "Start width " << k << endl;
+            auto timenow =
+                    chrono::system_clock::to_time_t(chrono::system_clock::now());
+            cout << "Running cols " << k <<", wm="<<wm << ", time: " << ctime(&timenow) << endl;
 //           RectManager* rm = new RectManager(k, n, bool(wm));
              RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), num_of_threads);
             rm->run_rectangle();

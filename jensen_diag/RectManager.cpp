@@ -425,7 +425,7 @@ void RectManagerParallel::redistribute_sigs(){
         s = 0;
         t = status.pat_length/2;
     } else {
-        s = (status.pat_length)/2;
+        s = status.pat_length/2;
         t = status.pat_length;
     }
 
