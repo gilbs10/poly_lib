@@ -23,7 +23,6 @@ int res_mul(int i, int j){
 void count(int n, int num_of_threads){
     u128_addable c = 0;
     int t_count = 0;
-//    #pragma omp parallel for
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
 //           RectManager* rm = new RectManager(k, n, bool(wm));
@@ -65,8 +64,8 @@ void save_res(int n){
 
 
 
-void run_all(int n = 10, int num_of_threads = 1) {
-    for (int i = 3; i <= n; ++i){
+void run_all(int n1, int n2, int num_of_threads = 1) {
+    for (int i = n1; i <= n2; ++i){
         auto timenow =
                 chrono::system_clock::to_time_t(chrono::system_clock::now());
         cout << "Running " << i << ", time: " << ctime(&timenow) << endl;
@@ -78,13 +77,13 @@ void run_all(int n = 10, int num_of_threads = 1) {
 }
 
 int main(){
-    int n, num_of_threads;
-    cout << "Enter size to run until:" << endl;
-    cin >> n;
+    int n1, n2, num_of_threads;
+    cout << "Enter sizes to from and to:" << endl;
+    cin >> n1 >> n2;
     cout << "Max number of threads: " << omp_get_max_threads() << endl;
     cout << "Enter num of threads to run on:" << endl;
     cin >> num_of_threads;
-    run_all(n, num_of_threads);
+    run_all(n1, n2, num_of_threads);
 //    int k = 20;
 //    int n = 20;
 //    bool wm = false;
