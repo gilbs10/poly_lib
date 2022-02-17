@@ -1,0 +1,10 @@
+//
+// Created by gilbe on 17.2.2022.
+//
+
+#ifndef JENSEN_DIAG_SETTINGS_H
+#define JENSEN_DIAG_SETTINGS_H
+
+#define JENSEN_DIAG_CONST_GF_SIZE 40
+
+#endif //JENSEN_DIAG_SETTINGS_H
