@@ -22,11 +22,13 @@ int res_mul(int i, int j){
 
 void count(int n, int num_of_threads){
     u128_addable c = 0;
+    int t_count = 0;
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
 //           RectManager* rm = new RectManager(k, n, bool(wm));
              RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), num_of_threads);
             rm->run_rectangle();
+            t_count += rm->t_count;
             for (int j = k; j <= n; ++j) {
                 if (rm->res->find(j) != rm->res->end()){
                     c += (*rm->res)[j]->g_func[n];
@@ -39,6 +41,7 @@ void count(int n, int num_of_threads){
         }
     }
     cout << n << ": " << c << endl;
+    cout << "t_count:" << t_count << endl;
 }
 
 void save_res(int n){
@@ -86,6 +89,5 @@ int main(){
 //    bool wm = false;
 //    RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), 4);
 //    rm->run_rectangle();
-
     return 0;
 }

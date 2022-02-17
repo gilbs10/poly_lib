@@ -42,12 +42,12 @@ public:
     ~RectManager();
     void inc_cell();
     void switch_counters();
-    void count_bp(SigDict* sd, BoundaryPattern* bp, GenFunc* gf, bool new_cell);
+    void count_bp(SigDict* sd, BoundaryPattern* bp, GenFunc &gf, bool new_cell);
     void inc_col();
     virtual void add_seed();
-    void count_res(GenFunc* gf);
+    void count_res(GenFunc &gf);
     int pat_pos_to_k(int i);
-    void filter_gf(GenFunc* gf, BoundaryPattern* pat);
+    void filter_gf(GenFunc &gf, BoundaryPattern* pat);
     void close_edge(BoundaryPattern* bp, int direction, int balance_init);
     void connect(BoundaryPattern* bp, int direction);
     void fix_bp(BoundaryPattern* bp);
@@ -74,6 +74,7 @@ public:
     unordered_map<int, GenFunc*>* res;
     int num_of_threads;
     bool top_half;
+    int t_count;
     RectManagerParallel(int w, int n, bool white_mode, int threads);
     ~RectManagerParallel();
     void run_rectangle();

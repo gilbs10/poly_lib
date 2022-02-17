@@ -7,16 +7,17 @@
 
 #include "BoundryPattern.h"
 #include "genfunc.h"
-#include <unordered_map>
+//#include <unordered_map>
+#include "robin_hood.h"
+
+typedef robin_hood::unordered_map<sig, GenFunc> sig_map;
 
 class SigDict{
 public:
-    unordered_map<sig, GenFunc*>* sigs;
-    int target_n;
-    SigDict(int n);
+    sig_map * sigs;
     SigDict();
     ~SigDict();
-    void add(sig sig_num, GenFunc* gf, bool new_cell);
+    void add(sig sig_num, GenFunc &gf, bool new_cell);
     bool is_empty();
     // TODO iterator
 };

@@ -1,6 +1,5 @@
 #include <iostream>
 #include "genfunc.h"
-#include <assert.h>
 
 using namespace std;
 
@@ -63,30 +62,46 @@ ostream& operator<<(ostream& os, const u128_addable& x){
 }
 GenFunc::GenFunc(int n){
     this->n = n;
-    g_func = new u128_addable[n+1]();
+    for (int i = 0; i < n; ++i) {
+        g_func[i] = 0;
+    };
     pgf = nullptr;
     max_n = 0;
 }
-GenFunc::GenFunc(GenFunc* gf2, int mul){
-    n = gf2->n;
-    g_func = new u128_addable[n+1]();
-    int target_n = min(n - mul, gf2->max_n);
+
+GenFunc::GenFunc(){
+    this->n = n;
+    pgf = nullptr;
+    max_n = 0;
+}
+
+GenFunc::GenFunc(GenFunc &gf2, int mul){
+    n = gf2.n;
+    int target_n = min(n - mul, gf2.max_n);
     for (int i = 0; i <= target_n; ++i) {
-        g_func[i+mul] = gf2->g_func[i];
+        g_func[i+mul] = gf2.g_func[i];
     }
     pgf = nullptr;
     max_n = target_n+mul;
 }
 
-GenFunc::~GenFunc(){
-    if(g_func){
-        delete[](g_func);
+
+GenFunc::GenFunc(const GenFunc &gf2){
+    n = gf2.n;
+    int target_n = min(n, gf2.max_n);
+    for (int i = 0; i <= target_n; ++i) {
+        g_func[i] = gf2.g_func[i];
     }
+    pgf = nullptr;
+    max_n = target_n;
+}
+
+GenFunc::~GenFunc(){
     if(pgf){
         delete(pgf);
     }
 }
-void GenFunc::add(GenFunc* gf2, int mul){
+void GenFunc::add(GenFunc &gf2, int mul){
     // Assuming both functions are of size n
     // TODO maybe room for optimization in here, max_n is not optimally updated
     bool packed_flag = false;
@@ -94,9 +109,9 @@ void GenFunc::add(GenFunc* gf2, int mul){
         unpack();
         packed_flag = true;
     }
-    int target_n = min(n - mul, gf2->max_n);
+    int target_n = min(n - mul, gf2.max_n);
     for (int i = 0; i <= target_n; ++i) {
-        g_func[i+mul] += gf2->g_func[i];
+        g_func[i+mul] += gf2.g_func[i];
     }
     max_n = max(max_n, target_n+mul);
     if(packed_flag){
@@ -124,9 +139,9 @@ void GenFunc::pack(int preentry_bits, int index_bits){
     if(!USE_PACKING){
         return;
     }
-    this->pgf = new PackedGenFunc(this, preentry_bits, index_bits);
-    delete[](this->g_func);
-    this->g_func = nullptr;
+//    this->pgf = new PackedGenFunc(this, preentry_bits, index_bits);
+//    delete[](this->g_func);
+//    this->g_func = nullptr;
 }
 
 
@@ -135,7 +150,6 @@ void GenFunc::unpack(int preentry_bits, int index_bits){
         return;
     }
 //    print_bit_array(pgf->bit_array);
-    g_func = new u128_addable[n+1]();
     for (int i = 0; i < n+1; ++i) {
         g_func[i] = 0;
     }
@@ -158,6 +172,18 @@ void GenFunc::unpack(int preentry_bits, int index_bits){
     }
     delete(pgf);
     pgf = nullptr;
+}
+
+GenFunc& GenFunc::operator=(const GenFunc& gf2)
+{
+    n = gf2.n;
+    int target_n = min(n, gf2.max_n);
+    for (int i = 0; i <= target_n; ++i) {
+        g_func[i] = gf2.g_func[i];
+    }
+    pgf = nullptr;
+    max_n = target_n;
+    return *this;
 }
 
 
@@ -213,7 +239,6 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
 PackedGenFunc::~PackedGenFunc(){
     delete[] bit_array;
 }
-
 
 void PackedGenFunc::insert(int pos, unsigned long long x, int x_bits){
     int slack = 64 - (pos % 64);

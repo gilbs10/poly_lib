@@ -107,15 +107,15 @@ void RectManager::add_seed(){
     BoundaryPattern* bp0 = new BoundaryPattern(0, status.pat_length);
     BoundaryPattern* bp = get_new_sig(bp0, 1);
     delete bp0;
-    count_bp(counter, bp, null_gf, 1);
+    count_bp(counter, bp, *null_gf, 1);
     delete bp;
 }
 
-void RectManager::count_bp(SigDict* sd, BoundaryPattern* bp, GenFunc* gf, bool new_cell){
+void RectManager::count_bp(SigDict* sd, BoundaryPattern* bp, GenFunc &gf, bool new_cell){
     sd->add(bp->get_sig_num(), gf, new_cell);
 }
 
-void RectManager::count_res(GenFunc* gf){
+void RectManager::count_res(GenFunc &gf){
     int cur_col = status.col - status.white_mode;
     if(res->find(cur_col) == res->end()){
         (*res)[cur_col] = new GenFunc(status.n);
@@ -127,7 +127,7 @@ int RectManager::pat_pos_to_k(int i){
     return (i  * 2) - status.big_col + (i < status.k_pos);
 }
 
-void RectManager::filter_gf(GenFunc* gf, BoundaryPattern* pat){
+void RectManager::filter_gf(GenFunc &gf, BoundaryPattern* pat){
     int h_dist = status.w - status.col + status.white_mode - 1; // TODO: verify
     int v_dist = 0;
     int i;
@@ -147,7 +147,7 @@ void RectManager::filter_gf(GenFunc* gf, BoundaryPattern* pat){
     }
     int dist = max(h_dist, v_dist);
     for (int j = status.n-dist+1; j < status.n+1; ++j) {
-        gf->g_func[j] = 0;
+        gf.g_func[j] = 0;
     }
 }
 
@@ -277,12 +277,12 @@ void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
     for (auto &it: *(prev->sigs)) {
         sig sig_num = it.first;
         BoundaryPattern *bp = new BoundaryPattern(sig_num, status.pat_length);
-        GenFunc *gf = it.second;
-        gf->unpack();
+        GenFunc gf = it.second;
+        gf.unpack();
         filter_gf(gf, bp);
-        if (gf->is_empty()) {
+        if (gf.is_empty()) {
             delete (bp);
-            gf->pack();
+            gf.pack();
             continue;
         }
         for (int i = 0; i < 2; ++i) {
@@ -299,7 +299,7 @@ void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
             }
             delete (new_bp);
         }
-        gf->pack();
+        gf.pack();
         delete (bp);
     }
 }
@@ -333,7 +333,7 @@ void PartialRectManager::add_seed(){
     BoundaryPattern* bp0 = new BoundaryPattern(0, status.pat_length);
     BoundaryPattern* bp = get_new_sig(bp0, 1);
     delete bp0;
-    count_bp(counter, bp, null_gf, 1);
+    count_bp(counter, bp, *null_gf, 1);
     delete bp;
 }
 
@@ -345,6 +345,8 @@ RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int thre
     counters = new unordered_map<sig, SigDict*>();
     top_half = true;
     res = new unordered_map<int, GenFunc*>;
+    t_count = 0;
+
 }
 
 RectManagerParallel::~RectManagerParallel() {
@@ -386,17 +388,16 @@ void RectManagerParallel::run_rectangle(){
     status = temp_rm->status;
     delete temp_rm;
     vector<PartialRectManager*> managers;
-    thread_pool pool(num_of_threads);
     while(!is_empty_counters() or status.col < 2){
         redistribute_sigs();
         managers.clear();
         for(auto &counters_it: *counters){
             managers.push_back(new PartialRectManager(status, counters_it.second, next_traget_col(), next_target_k_pos()));
         }
-        for (auto &managers_it: managers) {
-            pool.push_task([managers_it]{managers_it->run_rectangle();});
+        #pragma omp parallel for
+        for (int i = 0; i < managers.size(); ++i) {
+            managers[i]->run_rectangle();
         }
-        pool.wait_for_tasks();
         counters->clear();
         if(managers.size() == 0){
             break;
@@ -424,7 +425,7 @@ void RectManagerParallel::redistribute_sigs(){
         s = 0;
         t = status.pat_length/2;
     } else {
-        s = status.pat_length/2;
+        s = (status.pat_length)/2;
         t = status.pat_length;
     }
 
@@ -449,6 +450,6 @@ void RectManagerParallel::count_res(unordered_map<int, GenFunc*>* res_to_add){
         if(res->find(it.first) == res->end()){
             (*res)[it.first] = new GenFunc(status.n);
         }
-        (*res)[it.first]->add(it.second);
+        (*res)[it.first]->add(*it.second);
     }
 }

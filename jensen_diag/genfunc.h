@@ -3,12 +3,13 @@
 #define JENSEN_DIAG_GENFUNC_H
 
 #include <iostream>
+#include "settings.h"
 
 using namespace std;
 
 const int PREENTRY_BITS=7;
 const int INDEX_BITS=6;
-const bool USE_PACKING = false;
+const bool USE_PACKING = false; // TODO change to precompiled commands
 
 int bit_size_64(unsigned long long);
 
@@ -30,17 +31,20 @@ ostream& operator<<(ostream& os, const u128_addable& x);
 
 class GenFunc{
 public:
-    u128_addable* g_func; // TODO: handle more than long long
+    u128_addable g_func[JENSEN_DIAG_CONST_GF_SIZE+1];
     PackedGenFunc* pgf;
     int n;
     int max_n;
     GenFunc(int n);
-    GenFunc(GenFunc* gf2, int mul);
+    GenFunc(GenFunc &gf2, int mul);
+    GenFunc(const GenFunc &gf2);
+    GenFunc();
     ~GenFunc();
-    void add(GenFunc* gf2, int mul=0);
+    void add(GenFunc &gf2, int mul=0);
     bool is_empty(int mul = 0);
     void pack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
     void unpack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
+    GenFunc& operator=(const GenFunc& other);
 };
 
 class PackedGenFunc{
