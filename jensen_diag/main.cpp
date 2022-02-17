@@ -62,8 +62,8 @@ void save_res(int n){
 
 
 
-void run_all() {
-    for (int i = 3; i <= 10; ++i){
+void run_all(int n = 10) {
+    for (int i = 3; i <= n; ++i){
         auto timenow =
                 chrono::system_clock::to_time_t(chrono::system_clock::now());
         cout << "Running " << i << ", time: " << ctime(&timenow) << endl;
@@ -75,7 +75,10 @@ void run_all() {
 }
 
 int main(){
-    run_all();
+    cout << "Enter size to run until:" << endl;
+    int n;
+    cin >> n;
+    run_all(n);
 //    int k = 20;
 //    int n = 20;
 //    bool wm = false;
