@@ -25,6 +25,7 @@ void count(int n, int num_of_threads){
     int t_count = 0;
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
+            cout << "Start width " << k << endl;
 //           RectManager* rm = new RectManager(k, n, bool(wm));
              RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), num_of_threads);
             rm->run_rectangle();
