@@ -454,7 +454,7 @@ void RectManagerParallel::redistribute_sigs(){
             int thread_num = occupancy_to_thread[occupancy_num];
             temp_counters[thread_num]->add(it.first, it.second, 0);
             dist_counts[thread_num]+=occupancy_counter[occupancy_num];
-            c++;
+            c+=occupancy_counter[occupancy_num];
         }
     }
     if(c){
