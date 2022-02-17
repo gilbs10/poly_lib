@@ -10,9 +10,6 @@
 #include <queue>
 #include <vector>
 #include <map>
-#include <functional> // using hash<>
-#include <thread>
-#include "thread_pool.hpp"
 
 using namespace std;
 
