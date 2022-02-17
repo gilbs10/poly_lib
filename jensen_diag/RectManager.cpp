@@ -394,8 +394,7 @@ void RectManagerParallel::run_rectangle(){
         for(auto &counters_it: *counters){
             managers.push_back(new PartialRectManager(status, counters_it.second, next_traget_col(), next_target_k_pos()));
         }
-        omp_set_num_threads(num_of_threads);
-        #pragma omp parallel for
+        #pragma omp parallel for num_threads(num_of_threads)
         for (int i = 0; i < managers.size(); ++i) {
             managers[i]->run_rectangle();
         }
