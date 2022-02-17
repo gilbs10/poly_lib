@@ -3,11 +3,7 @@
 //
 
 #include "RectManager.h"
-#include <functional> // using hash<>
-#include <thread>
-#include <vector>
-#include <queue>
-#include <map>
+
 
 //
 // Created by gilbe on 13.2.2022.
@@ -319,7 +315,7 @@ PartialRectManager::PartialRectManager(RectStatus status1, SigDict *starting_cou
 }
 
 void PartialRectManager::run_rectangle(){
-    while(status.col < target_col || (status.col == target_col && status.k_pos == target_k_pos)){
+    while(status.col < target_col || (status.col == target_col && status.k_pos < target_k_pos)){
         process_sigdict(prev_counter, counter);
         inc_cell();
     }
@@ -345,20 +341,17 @@ void PartialRectManager::add_seed(){
 
 RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int threads) : status(w, n, white_mode){
     num_of_threads = threads;
-    counters = new SigDict*[num_of_threads]();
-    for (int i = 0; i < num_of_threads; ++i) {
-        counters[i] = new SigDict();
-    }
+    counters = new unordered_map<sig, SigDict*>();
     top_half = true;
     res = new unordered_map<int, GenFunc*>;
 }
 
 RectManagerParallel::~RectManagerParallel() {
-    delete[] counters;
+    delete counters;
 }
 
 int RectManagerParallel::next_target_k_pos() {
-    if(top_half){
+    if(!top_half){
         return 0;
     } else {
         return status.pat_length/2;
@@ -366,7 +359,7 @@ int RectManagerParallel::next_target_k_pos() {
 }
 
 int RectManagerParallel::next_traget_col() {
-    if(top_half){
+    if(!top_half){
         return status.col +1;
     } else {
         return status.col;
@@ -374,49 +367,50 @@ int RectManagerParallel::next_traget_col() {
 }
 
 void RectManagerParallel::run_rectangle(){
+    // First column is processed separately
+    int target_col;
+    if(status.white_mode){
+        target_col = 2;
+    } else {
+        target_col = 1;
+    }
+    PartialRectManager* temp_rm = new PartialRectManager(status, new SigDict(), target_col, 0);
+    temp_rm->set_seeder();
+    temp_rm->run_rectangle();
+    (*counters)[0] = temp_rm->prev_counter;
+    status = temp_rm->status;
+    vector<PartialRectManager*> managers;
+    thread_pool pool;
     while(!is_empty_counters() or status.col < 2){
-        vector<PartialRectManager*> managers;
-        vector<thread> threads;
+        redistribute_sigs();
         managers.clear();
-        threads.clear();
-        for (int i = 0; i < num_of_threads; ++i) {
-            managers.push_back(new PartialRectManager(status, counters[i], next_traget_col(), next_target_k_pos()));
-            if(i == 0){
-                managers[i]->set_seeder();
-            }
-//            managers[i]->run_rectangle();
+        for(auto &counters_it: *counters){
+            managers.push_back(new PartialRectManager(status, counters_it.second, next_traget_col(), next_target_k_pos()));
         }
-        for (int i = 0; i < num_of_threads; ++i) {
-            threads.push_back(thread([&managers,i]{managers[i]->run_rectangle();}));
+        for (auto &managers_it: managers) {
+            pool.push_task([managers_it]{managers_it->run_rectangle();});
         }
-        for (int i = 0; i < num_of_threads; ++i) {
-            threads[i].join();
-            counters[i] = managers[i]->prev_counter;
+        pool.wait_for_tasks();
+        counters->clear();
+        for (unsigned long long i = 0; i < managers.size(); ++i) {
             count_res(managers[i]->res);
+            (*counters)[i] = managers[i]->prev_counter;
         }
         status = managers[0]->status;
         top_half = !top_half;
-        redistribute_sigs();
     }
 }
 
 bool RectManagerParallel::is_empty_counters(){
-    bool empty = true;
-    for (int i = 0; i < num_of_threads; ++i) {
-        empty &= counters[i]->is_empty();
-    }
-    return empty;
+    return counters->size() == 0;
 }
 
 void RectManagerParallel::redistribute_sigs(){
     int* dist_counts = new int[num_of_threads]();
     int c= 0;
     sig occupancy_num;
-    map<sig, unsigned long long> occupancy_counter;
-    unordered_map<sig, unsigned long long> occupancy_to_thread;
-    priority_queue<pair<int, int>, vector<pair<int, int> >, std::greater<pair<int,int> > > threads_load_queue;
-    pair<int, int> thread_load;
     int s,t;
+    unordered_map<sig, SigDict*>* temp_counters = new unordered_map<sig, SigDict*>();
     if(!top_half){
         s = 0;
         t = status.pat_length/2;
@@ -424,51 +418,17 @@ void RectManagerParallel::redistribute_sigs(){
         s = status.pat_length/2;
         t = status.pat_length;
     }
-    for (int i = 0; i < num_of_threads; ++i){
-        for (auto &it: *(counters[i]->sigs)){
-            sig occupancy_num = BoundaryPattern(it.first, status.pat_length).get_occupancy_num(s, t);
-            if(occupancy_counter.find(occupancy_num) == occupancy_counter.end()){
-                occupancy_counter[occupancy_num] = 1;
-            } else {
-                occupancy_counter[occupancy_num]++;
-            }
-        }
-    }
-    for (int i = 0; i < num_of_threads; ++i) {
-        threads_load_queue.push({0, i});
-    }
-    for (auto it = occupancy_counter.rbegin(); it != occupancy_counter.rend(); ++it) {
-        thread_load = threads_load_queue.top();
-        threads_load_queue.pop();
-        occupancy_to_thread[it->first] = thread_load.second;
-        threads_load_queue.push({thread_load.first + it->second, thread_load.second});
-    }
 
-    SigDict** temp_counters = new SigDict*[num_of_threads]();
-    for (int i = 0; i < num_of_threads; ++i) {
-        temp_counters[i] = new SigDict();
-    }
-    for (int i = 0; i < num_of_threads; ++i){
-        for (auto &it: *(counters[i]->sigs)){
-            sig occupancy_num = BoundaryPattern(it.first, status.pat_length).get_occupancy_num(s, t);
-            int thread_num = occupancy_to_thread[occupancy_num];
-            temp_counters[thread_num]->add(it.first, it.second, 0);
-            dist_counts[thread_num]+=occupancy_counter[occupancy_num];
-            c+=occupancy_counter[occupancy_num];
+    for(auto &counters_it: *counters){
+        for(auto &sig_it: *(counters_it.second->sigs)){
+            sig occupancy_num = BoundaryPattern(sig_it.first, status.pat_length).get_occupancy_num(s, t);
+            if(temp_counters->find(occupancy_num) == temp_counters->end()){
+                (*temp_counters)[occupancy_num] = new SigDict();
+            }
+            (*temp_counters)[occupancy_num]->add(sig_it.first, sig_it.second, 0);
         }
     }
-    if(c){
-        cout << c << endl;
-        for (int i = 0; i < num_of_threads; ++i) {
-            cout << dist_counts[i]/(double)c<< ", ";
-        }
-        cout << endl;
-    }
-    delete[] dist_counts;
-    for (int i = 0; i < num_of_threads; ++i) {
-        delete counters[i];
-    }
-    delete[] counters;
+    delete counters;
     counters = temp_counters;
 }
 

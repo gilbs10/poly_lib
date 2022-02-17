@@ -18,6 +18,7 @@ public:
     ~SigDict();
     void add(sig sig_num, GenFunc* gf, bool new_cell);
     bool is_empty();
+    // TODO iterator
 };
 
 #endif //JENSEN_DIAG_SIGDICT_H

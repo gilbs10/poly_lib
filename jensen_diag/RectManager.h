@@ -6,7 +6,14 @@
 #define JENSEN_DIAG_RECTMANAGER_H
 
 #include "SigDict.h"
-#include "unordered_map"
+#include <unordered_map>
+#include <queue>
+#include <vector>
+#include <map>
+#include <functional> // using hash<>
+#include <thread>
+#include "thread_pool.hpp"
+
 using namespace std;
 
 struct RectStatus{
@@ -63,7 +70,7 @@ public:
 class RectManagerParallel{
 public:
     RectStatus status;
-    SigDict** counters;
+    unordered_map<sig, SigDict*>* counters;
     unordered_map<int, GenFunc*>* res;
     int num_of_threads;
     bool top_half;
