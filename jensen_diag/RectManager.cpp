@@ -75,7 +75,7 @@ RectManager::~RectManager(){
     }
     delete res;
     delete counter;
-    delete prev_counter;
+//    delete prev_counter; // Used from outside, delete manually.
 }
 
 void RectManager::inc_cell(){
@@ -310,6 +310,7 @@ PartialRectManager::PartialRectManager(RectStatus status1, SigDict *starting_cou
                   : RectManager(status1) {
     this->target_col = target_col;
     this->target_k_pos = target_k_pos;
+    delete prev_counter;
     prev_counter = starting_counter;
     seeder = false;
 }
@@ -348,6 +349,10 @@ RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int thre
 
 RectManagerParallel::~RectManagerParallel() {
     delete counters;
+    for(auto &gf_it: *res){
+        delete gf_it.second;
+    }
+    delete res;
 }
 
 int RectManagerParallel::next_target_k_pos() {
@@ -379,8 +384,9 @@ void RectManagerParallel::run_rectangle(){
     temp_rm->run_rectangle();
     (*counters)[0] = temp_rm->prev_counter;
     status = temp_rm->status;
+    delete temp_rm;
     vector<PartialRectManager*> managers;
-    thread_pool pool;
+    thread_pool pool(num_of_threads);
     while(!is_empty_counters() or status.col < 2){
         redistribute_sigs();
         managers.clear();
@@ -392,11 +398,15 @@ void RectManagerParallel::run_rectangle(){
         }
         pool.wait_for_tasks();
         counters->clear();
+        if(managers.size() == 0){
+            break;
+        }
+        status = managers[0]->status;
         for (unsigned long long i = 0; i < managers.size(); ++i) {
             count_res(managers[i]->res);
             (*counters)[i] = managers[i]->prev_counter;
+            delete managers[i];
         }
-        status = managers[0]->status;
         top_half = !top_half;
     }
 }
@@ -406,7 +416,6 @@ bool RectManagerParallel::is_empty_counters(){
 }
 
 void RectManagerParallel::redistribute_sigs(){
-    int* dist_counts = new int[num_of_threads]();
     int c= 0;
     sig occupancy_num;
     int s,t;
@@ -427,6 +436,9 @@ void RectManagerParallel::redistribute_sigs(){
             }
             (*temp_counters)[occupancy_num]->add(sig_it.first, sig_it.second, 0);
         }
+    }
+    for(auto &counters_it: *counters){
+        delete counters_it.second;
     }
     delete counters;
     counters = temp_counters;
