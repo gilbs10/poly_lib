@@ -457,13 +457,13 @@ void RectManagerParallel::redistribute_sigs(){
             c++;
         }
     }
-//    if(c){
-//        cout << c << endl;
-//        for (int i = 0; i < num_of_threads; ++i) {
-//            cout << dist_counts[i]/(double)c<< ", ";
-//        }
-//        cout << endl;
-//    }
+    if(c){
+        cout << c << endl;
+        for (int i = 0; i < num_of_threads; ++i) {
+            cout << dist_counts[i]/(double)c<< ", ";
+        }
+        cout << endl;
+    }
     delete[] dist_counts;
     for (int i = 0; i < num_of_threads; ++i) {
         delete counters[i];
