@@ -453,7 +453,7 @@ void RectManagerParallel::redistribute_sigs(){
             sig occupancy_num = BoundaryPattern(it.first, status.pat_length).get_occupancy_num(s, t);
             int thread_num = occupancy_to_thread[occupancy_num];
             temp_counters[thread_num]->add(it.first, it.second, 0);
-            dist_counts[thread_num]++;
+            dist_counts[thread_num]+=occupancy_counter[occupancy_num];
             c++;
         }
     }
