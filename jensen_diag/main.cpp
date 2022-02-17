@@ -4,7 +4,7 @@
 #include <chrono>
 #include "genfunc.h"
 #include "RectManager.h"
-
+#include <omp.h>
 
 
 using namespace std;
@@ -23,7 +23,7 @@ int res_mul(int i, int j){
 void count(int n, int num_of_threads){
     u128_addable c = 0;
     int t_count = 0;
-    #pragma omp parallel for
+//    #pragma omp parallel for
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
 //           RectManager* rm = new RectManager(k, n, bool(wm));
@@ -81,6 +81,7 @@ int main(){
     int n, num_of_threads;
     cout << "Enter size to run until:" << endl;
     cin >> n;
+    cout << "Max number of threads: " << omp_get_max_threads() << endl;
     cout << "Enter num of threads to run on:" << endl;
     cin >> num_of_threads;
     run_all(n, num_of_threads);
