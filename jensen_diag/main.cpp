@@ -30,7 +30,7 @@ void count(int n, int num_of_threads){
         for (int k = 2; k < n+1; ++k) {
             auto timenow =
                     chrono::system_clock::to_time_t(chrono::system_clock::now());
-            cout << "Running cols " << k <<", wm="<<wm << ", time: " << ctime(&timenow) << endl;
+            cout << "Running cols " << k <<", wm="<<wm << ", time: " << ctime(&timenow);
 //           RectManager* rm = new RectManager(k, n, bool(wm));
              RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), num_of_threads);
             rm->run_rectangle();
