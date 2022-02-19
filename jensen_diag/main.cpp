@@ -23,8 +23,6 @@ int res_mul(int i, int j){
 void count(int n, int num_of_threads){
     u128_addable c = 0;
     int t_count = 0;
-//omp_set_nested(1);
-//omp_set_dynamic(0);
 //#pragma omp parallel for num_threads(2) 
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
