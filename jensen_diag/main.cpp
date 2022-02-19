@@ -82,7 +82,7 @@ int main(){
         cout << "Enter num of threads to run on:" << endl;
         cin >> num_of_threads;
         print_time();
-        cout << count_rect(w,n,wm,num_of_threads);
+        cout << count_rect(w,n,wm,num_of_threads) << endl;
         print_time();
     }
     return 0;
