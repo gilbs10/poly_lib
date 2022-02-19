@@ -12,60 +12,40 @@ using namespace std;
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
 
+void print_time(){
+    auto timenow =
+            chrono::system_clock::to_time_t(chrono::system_clock::now());
+    cout <<  "Time: " << ctime(&timenow) << flush;
+}
 
-int res_mul(int i, int j){
-    if(j > i){
-        return 2;
+u128_addable count_rect(int w, int n, bool wm, int num_of_threads){
+    u128_addable c = 0;
+//    RectManager* rm = new RectManager(w, n, bool(wm));
+    RectManagerParallel* rm = new RectManagerParallel(w, n, bool(wm), num_of_threads);
+    rm->run_rectangle();
+    for (int j = w; j <= n; ++j) {
+        if (rm->res->find(j) != rm->res->end()){
+            c += (*rm->res)[j]->g_func[n];
+            if(j > w){
+                c += (*rm->res)[j]->g_func[n];
+            }
+        }
     }
-    return 1;
+    delete rm;
+    return c;
 }
 
 void count(int n, int num_of_threads){
     u128_addable c = 0;
-    int t_count = 0;
-//#pragma omp parallel for num_threads(2) 
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
-            auto timenow =
-                    chrono::system_clock::to_time_t(chrono::system_clock::now());
-            cout << "Running cols " << k <<", wm="<<wm << ", time: " << ctime(&timenow);
-//           RectManager* rm = new RectManager(k, n, bool(wm));
-             RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), num_of_threads);
-            rm->run_rectangle();
-            t_count += rm->t_count;
-            for (int j = k; j <= n; ++j) {
-                if (rm->res->find(j) != rm->res->end()){
-                    c += (*rm->res)[j]->g_func[n];
-                    if(j > k){
-                        c += (*rm->res)[j]->g_func[n];
-                    }
-                }
-            }
-            delete rm;
+            cout << "Running cols " << k <<", wm="<<wm << endl;
+            print_time();
+            c += count_rect(k, n, wm, num_of_threads);
         }
     }
     cout << n << ": " << c << endl;
 }
-
-void save_res(int n){
-    u128_addable c = 0;
-    for (int wm = 0; wm < 2; ++wm) {
-        for (int k = 2; k < n+1; ++k) {
-            auto timenow =
-                    chrono::system_clock::to_time_t(chrono::system_clock::now());
-            cout << "Running cols " << k <<", wm="<<wm << ", time: " << ctime(&timenow) << endl;
-            RectManager* rm = new RectManager(k, n, bool(wm));
-            rm->run_rectangle();
-            for (int i = 0; i <= n; ++i) {
-                if(rm->res->find(i) != rm->res->end()){
-                    cout << n << ", " << wm <<", " << k <<", " << i << ", " << (*rm->res)[i]->g_func[n] << endl;
-                }
-            }
-            delete rm;
-        }
-    }
-}
-
 
 
 void run_all(int n1, int n2, int num_of_threads = 1) {
@@ -81,17 +61,29 @@ void run_all(int n1, int n2, int num_of_threads = 1) {
 }
 
 int main(){
+    cout << "Run rectangle (r) or full size (n)?" << endl;
+    char run_type;
+    cin >> run_type;
     int n1, n2, num_of_threads;
-    cout << "Enter sizes to from and to:" << endl;
-    cin >> n1 >> n2;
-    cout << "Max number of threads: " << omp_get_max_threads() << endl;
-    cout << "Enter num of threads to run on:" << endl;
-    cin >> num_of_threads;
-    run_all(n1, n2, num_of_threads);
-//    int k = 20;
-//    int n = 20;
-//    bool wm = false;
-//    RectManagerParallel* rm = new RectManagerParallel(k, n, bool(wm), 4);
-//    rm->run_rectangle();
+    int n,w;
+    if(run_type == 'n'){
+        cout << "Enter sizes to from and to:" << endl;
+        cin >> n1 >> n2;
+        cout << "Max number of threads: " << omp_get_max_threads() << endl;
+        cout << "Enter num of threads to run on:" << endl;
+        cin >> num_of_threads;
+        run_all(n1, n2, num_of_threads);
+    } else {
+        cout << "Enter size:" << endl;
+        cin >> n;
+        cout << "Enter width:" << endl;
+        cin >> w;
+        bool wm = false;
+        cout << "Enter num of threads to run on:" << endl;
+        cin >> num_of_threads;
+        print_time();
+        cout << count_rect(w,n,wm,num_of_threads);
+        print_time();
+    }
     return 0;
 }
