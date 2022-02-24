@@ -443,6 +443,7 @@ void RectManagerParallel::redistribute_sigs(){
         delete counters_it;
     }
     delete counters;
+    delete counters_locks;
     counters = temp_counters;
 }
 
