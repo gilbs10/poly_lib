@@ -9,6 +9,9 @@ SigDict::SigDict(){
 }
 
 SigDict::~SigDict(){
+    for(auto &sig_it: *sigs){
+        delete(sig_it.second);
+    }
     delete sigs;
 }
 
@@ -18,12 +21,9 @@ void SigDict::add(sig sig_num, GenFunc &gf, bool new_cell){
     }
     auto it = sigs->find(sig_num);
     if(it == sigs->end()){
-        GenFunc gf2 = GenFunc(gf, new_cell);
-        gf2.pack();
-        (*sigs)[sig_num] = gf2;
-    } else {
-        it->second.add(gf, new_cell);
+        (*sigs)[sig_num] = new GenFunc(gf.size());
     }
+    (*sigs)[sig_num]->add(gf, new_cell);
 }
 
 bool SigDict::is_empty(){

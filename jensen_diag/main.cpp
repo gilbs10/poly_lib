@@ -90,5 +90,13 @@ void get_input_and_run(){
 
 int main(){
     get_input_and_run();
+//    GenFunc gf(5);
+//    gf.set_at(3, 5);
+//    gf.pack();
+//    for (int i = 0; i < 6; ++i) {
+//        cout << gf.at(i) << ", ";
+//    }
+//    gf.unpack();
+//    cout << endl;
     return 0;
 }

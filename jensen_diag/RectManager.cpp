@@ -41,8 +41,7 @@ const GlobalChange GLOBAL_CHANGES[5][5][2] = {
 
 
 
-RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mode){
-    null_gf = GenFunc(n);
+RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mode), null_gf(n){
     null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
@@ -50,8 +49,7 @@ RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mod
     sig_counter = 0;
 }
 
-RectManager::RectManager(RectStatus status) : status(status){
-    null_gf = GenFunc(status.n);
+RectManager::RectManager(RectStatus status) : status(status), null_gf(status.n){
     null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
@@ -254,12 +252,12 @@ void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
         sig_counter += 1;
         sig sig_num = it.first;
         BoundaryPattern *bp = new BoundaryPattern(sig_num, status.pat_length);
-        GenFunc gf = it.second;
-        gf.unpack();
-        filter_gf(gf, bp);
-        if (gf.is_empty()) {
+        GenFunc* gf = it.second;
+        gf->unpack();
+        filter_gf(*gf, bp);
+        if (gf->is_empty()) {
             delete (bp);
-            gf.pack();
+            gf->pack();
             continue;
         }
         for (int i = 0; i < 2; ++i) {
@@ -269,14 +267,14 @@ void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
             BoundaryPattern *new_bp = get_new_sig(bp, i);
             if (new_bp->disconnected) {
                 if (new_bp->sealed()) {
-                    count_res(gf);
+                    count_res(*gf);
                 }
             } else {
-                count_bp(next, new_bp, gf, i);
+                count_bp(next, new_bp, *gf, i);
             }
             delete (new_bp);
         }
-        gf.pack();
+        gf->pack();
         delete (bp);
     }
 }
@@ -430,10 +428,10 @@ void RectManagerParallel::redistribute_sigs(){
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
             }
-            (*temp_counters)[occupancy_num]->add(sig_it->first, sig_it->second, 0);
+            (*temp_counters)[occupancy_num]->add(sig_it->first, *sig_it->second, 0);
             if (status.w % 2 && !status.col %2 && status.k_pos == 0){
                 if (bp.get_sig_num(1) > bp.get_reverse_sig_num()){
-                    (*temp_counters)[occupancy_num]->add(sig_it->first, sig_it->second, 0);
+                    (*temp_counters)[occupancy_num]->add(sig_it->first, *sig_it->second, 0);
                 }
             }
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
