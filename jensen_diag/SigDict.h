@@ -10,8 +10,8 @@
 #include "robin_hood.h"
 #include "abseil-cpp/absl/container/flat_hash_map.h"
 
-//typedef robin_hood::unordered_map<sig, GenFunc> sig_map;
-typedef absl::flat_hash_map<sig, GenFunc> sig_map;
+typedef robin_hood::unordered_map<sig, GenFunc*> sig_map;
+typedef absl::flat_hash_map<sig, GenFunc*> sig_map;
 //typedef unordered_map<sig, GenFunc*> sig_map;
 
 class SigDict{
