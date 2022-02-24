@@ -274,7 +274,8 @@ void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
             }
             delete (new_bp);
         }
-        gf->pack();
+        delete(it.second);
+        (*prev->sigs)[it.first] = nullptr;
         delete (bp);
     }
 }
