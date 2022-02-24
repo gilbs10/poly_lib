@@ -30,11 +30,13 @@ public:
 ostream& operator<<(ostream& os, const u128_addable& x);
 
 class GenFunc{
-public:
+private:
     u128_addable g_func[JENSEN_DIAG_CONST_GF_SIZE+1];
     PackedGenFunc* pgf;
     int n;
     int max_n;
+    int min_n;
+public:
     GenFunc(int n);
     GenFunc(GenFunc &gf2, int mul);
     GenFunc(const GenFunc &gf2);
@@ -44,6 +46,11 @@ public:
     bool is_empty(int mul = 0);
     void pack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
     void unpack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
+    u128_addable at(int i);
+    void set_at(int i, u128_addable x);
+    void clear_from(int i);
+    int size();
+    bool is_valid();
     GenFunc& operator=(const GenFunc& other);
 };
 

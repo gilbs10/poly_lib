@@ -11,7 +11,6 @@
 
 using namespace std;
 
-
 const int UP = 0;
 const int DOWN = 1;
 
@@ -40,36 +39,27 @@ const GlobalChange GLOBAL_CHANGES[5][5][2] = {
         {{CLOSE_UPPER_EDGE,NO_FUNC},{CLOSE_UPPER_EDGE,NO_FUNC},{CLOSE_UPPER_EDGE,NO_FUNC},{CLOSE_UPPER_EDGE,CONNECT_UPPER},{CLOSE_UPPER_EDGE,CONNECT_UPPER}}
 };
 
-RectStatus::RectStatus(int w, int n, bool white_mode) {
-    this->w = w;
-    this->n = n;
-    this->white_mode = white_mode;
-    this->odd_width = bool(w % 2);
-    this->pat_length = w / 2 + 1;
-    this->col = 0;
-    this->k = 0;
-    this->k_pos = 0;
-    this->big_col = true;
-}
+
 
 RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mode){
-    null_gf = new GenFunc(n);
-    null_gf->g_func[0] = 1;
+    null_gf = GenFunc(n);
+    null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
     prev_counter = new SigDict();
+    sig_counter = 0;
 }
 
 RectManager::RectManager(RectStatus status) : status(status){
-    null_gf = new GenFunc(status.n);
-    null_gf->g_func[0] = 1;
+    null_gf = GenFunc(status.n);
+    null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
     prev_counter = new SigDict();
+    sig_counter = 0;
 }
 
 RectManager::~RectManager(){
-    delete null_gf;
     for(auto& it: *res){
         delete it.second;
     }
@@ -107,7 +97,7 @@ void RectManager::add_seed(){
     BoundaryPattern* bp0 = new BoundaryPattern(0, status.pat_length);
     BoundaryPattern* bp = get_new_sig(bp0, 1);
     delete bp0;
-    count_bp(counter, bp, *null_gf, 1);
+    count_bp(counter, bp, null_gf, 1);
     delete bp;
 }
 
@@ -123,32 +113,18 @@ void RectManager::count_res(GenFunc &gf){
     (*res)[cur_col]->add(gf);
 }
 
-int RectManager::pat_pos_to_k(int i){
-    return (i  * 2) - status.big_col + (i < status.k_pos);
-}
 
-void RectManager::filter_gf(GenFunc &gf, BoundaryPattern* pat){
+void RectManager::filter_gf(GenFunc &gf, BoundaryPattern* bp){
+
     int h_dist = status.w - status.col + status.white_mode - 1; // TODO: verify
-    int v_dist = 0;
-    int i;
-    if(!pat->top_border){
-        i = 0;
-        while(pat->pattern[i] == 0){
-            i++;
-        }
-        v_dist += (pat_pos_to_k(i));
-    }
-    if(!pat->bottom_border){
-        i = status.pat_length-1;
-        while(pat->pattern[i] == 0){
-            i--;
-        }
-        v_dist += (status.w - pat_pos_to_k(i) - 1);
-    }
-    int dist = max(h_dist, v_dist);
-    for (int j = status.n-dist+1; j < status.n+1; ++j) {
-        gf.g_func[j] = 0;
-    }
+    int v_dist = bp->border_dist(status);
+    pair<int, int> internal_dist = bp->internal_dist(status);
+    int total_internal_dist = internal_dist.first;
+    int max_internal_dist = internal_dist.second;
+
+    int dist = max(max(h_dist, h_dist -(max_internal_dist/2 + 1)+total_internal_dist), v_dist+total_internal_dist);
+//    int dist = max(h_dist, v_dist);
+    gf.clear_from(status.n-dist+1);
 }
 
 void RectManager::close_edge(BoundaryPattern* bp, int direction, int balance_init){
@@ -275,6 +251,7 @@ void RectManager::run_rectangle(){
 
 void RectManager::process_sigdict(SigDict* prev, SigDict* next) {
     for (auto &it: *(prev->sigs)) {
+        sig_counter += 1;
         sig sig_num = it.first;
         BoundaryPattern *bp = new BoundaryPattern(sig_num, status.pat_length);
         GenFunc gf = it.second;
@@ -333,7 +310,7 @@ void PartialRectManager::add_seed(){
     BoundaryPattern* bp0 = new BoundaryPattern(0, status.pat_length);
     BoundaryPattern* bp = get_new_sig(bp0, 1);
     delete bp0;
-    count_bp(counter, bp, *null_gf, 1);
+    count_bp(counter, bp, null_gf, 1);
     delete bp;
 }
 
@@ -342,10 +319,10 @@ void PartialRectManager::add_seed(){
 
 RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int threads) : status(w, n, white_mode){
     num_of_threads = threads;
-    counters = new unordered_map<sig, SigDict*>();
+    counters = new vector<SigDict*>(1, nullptr);
     top_half = true;
     res = new unordered_map<int, GenFunc*>;
-    t_count = 0;
+    sig_counter = 0;
 
 }
 
@@ -387,30 +364,35 @@ void RectManagerParallel::run_rectangle(){
     (*counters)[0] = temp_rm->prev_counter;
     status = temp_rm->status;
     delete temp_rm;
-    vector<PartialRectManager*> managers;
+    vector<PartialRectManager*>* managers = new vector<PartialRectManager*>;
     while(!is_empty_counters() or status.col < 2){
         redistribute_sigs();
-        managers.clear();
+        managers->clear();
         for(auto &counters_it: *counters){
-            managers.push_back(new PartialRectManager(status, counters_it.second, next_traget_col(), next_target_k_pos()));
+            if(counters_it){
+                managers->push_back(new PartialRectManager(status, counters_it, next_traget_col(), next_target_k_pos()));
+            }
         }
-	omp_set_num_threads(num_of_threads);
-        #pragma omp parallel for schedule(dynamic, 1)
-        for (int i = 0; i < managers.size(); ++i) {
-            managers[i]->run_rectangle();
+	    omp_set_num_threads(num_of_threads);
+        #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
+        for (int i = 0; i < managers->size(); ++i) {
+            (*managers)[i]->run_rectangle();
         }
         counters->clear();
-        if(managers.size() == 0){
+        if(managers->size() == 0){
             break;
         }
-        status = managers[0]->status;
-        for (unsigned long long i = 0; i < managers.size(); ++i) {
-            count_res(managers[i]->res);
-            (*counters)[i] = managers[i]->prev_counter;
-            delete managers[i];
+        status = (*managers)[0]->status;
+        counters->resize(managers->size());
+        for (unsigned long long i = 0; i < managers->size(); ++i) {
+            sig_counter += (*managers)[i]->sig_counter;
+            count_res((*managers)[i]->res);
+            (*counters)[i] = (*managers)[i]->prev_counter;
+            delete (*managers)[i];
         }
         top_half = !top_half;
     }
+    delete managers;
 }
 
 bool RectManagerParallel::is_empty_counters(){
@@ -421,7 +403,6 @@ void RectManagerParallel::redistribute_sigs(){
     int c= 0;
     sig occupancy_num;
     int s,t;
-    unordered_map<sig, SigDict*>* temp_counters = new unordered_map<sig, SigDict*>();
     if(!top_half){
         s = 0;
         t = status.pat_length/2;
@@ -430,17 +411,36 @@ void RectManagerParallel::redistribute_sigs(){
         t = status.pat_length;
     }
 
-    for(auto &counters_it: *counters){
-        for(auto &sig_it: *(counters_it.second->sigs)){
-            sig occupancy_num = BoundaryPattern(sig_it.first, status.pat_length).get_occupancy_num(s, t);
-            if(temp_counters->find(occupancy_num) == temp_counters->end()){
+    vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
+    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
+    for (int i = 0; i < counters_locks->size(); ++i) {
+        omp_init_lock(&((*counters_locks)[i]));
+    }
+    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
+    for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
+        for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
+            BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
+            if (status.w % 2 && !status.col %2 && status.k_pos == 0){
+                if (bp.get_sig_num(1) < bp.get_reverse_sig_num()){
+                    continue;
+                }
+            }
+            sig occupancy_num = bp.get_occupancy_num(s, t);
+            omp_set_lock(&((*counters_locks)[occupancy_num]));
+            if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
             }
-            (*temp_counters)[occupancy_num]->add(sig_it.first, sig_it.second, 0);
+            (*temp_counters)[occupancy_num]->add(sig_it->first, sig_it->second, 0);
+            if (status.w % 2 && !status.col %2 && status.k_pos == 0){
+                if (bp.get_sig_num(1) > bp.get_reverse_sig_num()){
+                    (*temp_counters)[occupancy_num]->add(sig_it->first, sig_it->second, 0);
+                }
+            }
+            omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
     }
     for(auto &counters_it: *counters){
-        delete counters_it.second;
+        delete counters_it;
     }
     delete counters;
     counters = temp_counters;

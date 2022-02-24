@@ -7,7 +7,6 @@
 
 #include "BoundryPattern.h"
 #include "genfunc.h"
-//#include <unordered_map>
 #include "robin_hood.h"
 
 typedef robin_hood::unordered_map<sig, GenFunc> sig_map;

@@ -25,12 +25,13 @@ u128_addable count_rect(int w, int n, bool wm, int num_of_threads){
     rm->run_rectangle();
     for (int j = w; j <= n; ++j) {
         if (rm->res->find(j) != rm->res->end()){
-            c += (*rm->res)[j]->g_func[n];
+            c += (*rm->res)[j]->at(n);
             if(j > w){
-                c += (*rm->res)[j]->g_func[n];
+                c += (*rm->res)[j]->at(n);
             }
         }
     }
+    cout << "Num of sigs processed:" << rm->sig_counter << endl;
     delete rm;
     return c;
 }
@@ -60,7 +61,7 @@ void run_all(int n1, int n2, int num_of_threads = 1) {
     cout << ctime(&timenow) << endl;
 }
 
-int main(){
+void get_input_and_run(){
     cout << "Run rectangle (r) or full size (n)?" << endl;
     char run_type;
     cin >> run_type;
@@ -85,5 +86,9 @@ int main(){
         cout << count_rect(w,n,wm,num_of_threads) << endl;
         print_time();
     }
+}
+
+int main(){
+    get_input_and_run();
     return 0;
 }

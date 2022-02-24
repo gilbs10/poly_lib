@@ -10,22 +10,10 @@
 #include <queue>
 #include <vector>
 #include <map>
+#include "RectStatus.h"
+#include <omp.h>
 
 using namespace std;
-
-struct RectStatus{
-public:
-    int w;
-    int n;
-    bool white_mode;
-    int k;
-    int k_pos;
-    int col;
-    bool odd_width;
-    bool big_col;
-    int pat_length;
-    RectStatus(int w, int n, bool white_mode);
-};
 
 class RectManager{
 public:
@@ -33,7 +21,8 @@ public:
     SigDict* counter;
     SigDict* prev_counter;
     unordered_map<int, GenFunc*>* res;
-    GenFunc* null_gf;
+    GenFunc null_gf;
+    long long sig_counter;
     RectManager(int w, int n, bool white_mode);
     RectManager(RectStatus status1);
     ~RectManager();
@@ -43,7 +32,6 @@ public:
     void inc_col();
     virtual void add_seed();
     void count_res(GenFunc &gf);
-    int pat_pos_to_k(int i);
     void filter_gf(GenFunc &gf, BoundaryPattern* pat);
     void close_edge(BoundaryPattern* bp, int direction, int balance_init);
     void connect(BoundaryPattern* bp, int direction);
@@ -67,11 +55,11 @@ public:
 class RectManagerParallel{
 public:
     RectStatus status;
-    unordered_map<sig, SigDict*>* counters;
+    vector<SigDict*>* counters;
     unordered_map<int, GenFunc*>* res;
     int num_of_threads;
     bool top_half;
-    int t_count;
+    long long sig_counter;
     RectManagerParallel(int w, int n, bool white_mode, int threads);
     ~RectManagerParallel();
     void run_rectangle();
