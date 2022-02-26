@@ -8,7 +8,7 @@
 
 
 using namespace std;
-int sigs = 0;
+long long sigs = 0;
 int global_n; //Allows us to save presious memory in each GenFunc.
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
