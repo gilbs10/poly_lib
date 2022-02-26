@@ -8,7 +8,7 @@
 
 
 using namespace std;
-
+int sigs = 0;
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
 
@@ -33,6 +33,7 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     }
     cout << "Num of sigs processed:" << rm->sig_counter << endl;
     cout << "Result: " << c << endl;
+    sigs += rm->sig_counter;
     delete rm;
     return c;
 }
@@ -91,6 +92,7 @@ void get_input_and_run(){
 
 int main(){
     get_input_and_run();
+    cout << "Total sigs: " << sigs;
 //    GenFunc gf(5);
 //    gf.set_at(3, 5);
 //    gf.pack();
