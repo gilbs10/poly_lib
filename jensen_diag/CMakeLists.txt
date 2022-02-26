@@ -3,16 +3,6 @@ project(jensen_diag)
 
 set( CMAKE_VERBOSE_MAKEFILE on )
 
-if (CMAKE_BUILD_TYPE MATCHES Debug)
-    message(" ")
-    message("CMAKE IN DEBUG MODE")
-    message(" ")
-elseif(CMAKE_BUILD_TYPE MATCHES Release)
-    message(" ")
-    message("CMAKE IN RELEASE MODE")
-    message(" ")
-endif ()
-
 set(CMAKE_CXX_STANDARD 17)
 
 SET(CMAKE_CXX_FLAGS -fopenmp)

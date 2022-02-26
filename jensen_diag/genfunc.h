@@ -10,6 +10,7 @@ using namespace std;
 const int PREENTRY_BITS=7;
 const int INDEX_BITS=6;
 
+extern int global_n;
 class u128_addable;
 class u64_addable_mod;
 //typedef u128_addable gf_type;
@@ -55,11 +56,10 @@ private:
 #ifdef GF_USE_PACKING
     PackedGenFunc* pgf;
 #endif
-    int n;
-    int max_n;
-    int min_n;
+    int8_t max_n;
+    int8_t min_n;
 public:
-    explicit GenFunc(int n=1);
+    explicit GenFunc();
     GenFunc(const GenFunc &gf2);
     GenFunc(GenFunc &gf2, int mul);
     ~GenFunc();

@@ -41,7 +41,7 @@ const GlobalChange GLOBAL_CHANGES[5][5][2] = {
 
 
 
-RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mode), null_gf(n){
+RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mode), null_gf(){
     null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
@@ -49,7 +49,7 @@ RectManager::RectManager(int w, int n, bool white_mode) : status(w, n, white_mod
     sig_counter = 0;
 }
 
-RectManager::RectManager(RectStatus status) : status(status), null_gf(status.n){
+RectManager::RectManager(RectStatus status) : status(status), null_gf(){
     null_gf.set_at(0, 1);
     res = new unordered_map<int, GenFunc*>();
     counter = new SigDict();
@@ -106,7 +106,7 @@ void RectManager::count_bp(SigDict* sd, BoundaryPattern* bp, GenFunc &gf, bool n
 void RectManager::count_res(GenFunc &gf){
     int cur_col = status.col - status.white_mode;
     if(res->find(cur_col) == res->end()){
-        (*res)[cur_col] = new GenFunc(status.n);
+        (*res)[cur_col] = new GenFunc();
     }
     (*res)[cur_col]->add(gf);
 }
@@ -451,7 +451,7 @@ void RectManagerParallel::redistribute_sigs(){
 void RectManagerParallel::count_res(unordered_map<int, GenFunc*>* res_to_add){
     for(auto& it: *res_to_add){
         if(res->find(it.first) == res->end()){
-            (*res)[it.first] = new GenFunc(status.n);
+            (*res)[it.first] = new GenFunc();
         }
         (*res)[it.first]->add(*it.second);
     }

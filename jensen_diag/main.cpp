@@ -9,6 +9,8 @@
 
 using namespace std;
 int sigs = 0;
+int global_n; //Allows us to save presious memory in each GenFunc.
+/*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
 
@@ -40,6 +42,7 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
 
 void count(int n, int num_of_threads){
     gf_type c = 0;
+    global_n = n;
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
             cout << "Running cols " << k <<", wm="<<wm << endl;

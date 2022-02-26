@@ -21,7 +21,7 @@ void SigDict::add(sig sig_num, GenFunc &gf, bool new_cell){
     }
     auto it = sigs->find(sig_num);
     if(it == sigs->end()){
-        (*sigs)[sig_num] = new GenFunc(gf.size());
+        (*sigs)[sig_num] = new GenFunc();
     }
     (*sigs)[sig_num]->add(gf, new_cell);
 }

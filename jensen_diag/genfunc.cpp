@@ -3,6 +3,12 @@
 
 using namespace std;
 
+int8_t min(int8_t x, int8_t y){
+    return x < y ? x : y;
+}
+int8_t max(int8_t x, int8_t y){
+    return x > y ? x : y;
+}
 
 void print_bit_array(unsigned long long* bit_array){
     for (int i = 0; i < 2; ++i) {
@@ -85,16 +91,15 @@ ostream& operator<<(ostream& os, const u64_addable_mod& x){
     return os;
 }
 
-GenFunc::GenFunc(int n){
-    this->n = n;
+GenFunc::GenFunc(){
     #ifndef GF_USE_PREALLOCATED
-        g_func = new gf_type[n+1];
+        g_func = new gf_type[global_n+1];
     #endif
-    for (int i = 0; i <= n; ++i) {
+    for (int i = 0; i <= global_n; ++i) {
         g_func[i] = 0;
     };
     max_n = 0; // Pos of the element *after* the last non-zero element
-    min_n = 0;
+    min_n = global_n+2;
     #ifdef GF_USE_PACKING
     pgf = new PackedGenFunc(this);
     delete[](this->g_func);
@@ -104,8 +109,7 @@ GenFunc::GenFunc(int n){
 }
 
 GenFunc::GenFunc(GenFunc &gf2, int mul){
-    n = gf2.n;
-    int target_n = min(n - mul + 1, gf2.max_n);
+    int target_n = min(global_n - mul + 1, gf2.max_n);
 #ifdef GF_USE_PACKING
     bool packed_flag = false;
     if(mul){
@@ -114,7 +118,7 @@ GenFunc::GenFunc(GenFunc &gf2, int mul){
 #endif
     if (gf2.g_func) {
         #ifndef GF_USE_PREALLOCATED
-        g_func = new gf_type[n + 1];
+        g_func = new gf_type[global_n + 1];
         #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i + mul] = gf2.g_func[i];
@@ -139,11 +143,10 @@ GenFunc::GenFunc(GenFunc &gf2, int mul){
 
 
 GenFunc::GenFunc(const GenFunc &gf2){
-    n = gf2.n;
-    int target_n = min(n + 1, gf2.max_n);
+    int target_n = min(global_n + 1, gf2.max_n);
     if (gf2.g_func) {
 #ifndef GF_USE_PREALLOCATED
-        g_func = new gf_type[n + 1];
+        g_func = new gf_type[global_n + 1];
 #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i] = gf2.g_func[i];
@@ -181,7 +184,7 @@ void GenFunc::add(GenFunc &gf2, int mul){
     bool packed_flag1 = unpack();
     bool packed_flag2 = gf2.unpack();
     #endif
-    int target_n = min(n - mul + 1, gf2.max_n);
+    int target_n = min(global_n - mul + 1, gf2.max_n);
     for (int i = gf2.min_n; i < target_n; ++i) {
         g_func[i+mul] += gf2.g_func[i];
     }
@@ -213,12 +216,12 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
     if(!pgf){ // Nothing to do
         return false;
     }
-    g_func = new gf_type[n+1];
-    for (int i = 0; i < n+1; ++i) {
+    g_func = new gf_type[global_n+1];
+    for (int i = 0; i < global_n+1; ++i) {
         g_func[i] = 0;
     }
     max_n = 0;
-    min_n = n+1;
+    min_n = global_n+1;
     int pos = index_bits; // Array len is unnecessary
     int entries = pgf->get(pos, index_bits);
     pos += index_bits;
@@ -246,12 +249,11 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
 
 GenFunc& GenFunc::operator=(const GenFunc& gf2)
 {
-    n = gf2.n;
-    int target_n = min(n + 1, gf2.max_n);
+    int target_n = min(global_n + 1, gf2.max_n);
 
     if (gf2.g_func) {
 #ifndef GF_USE_PREALLOCATED
-        g_func = new gf_type[n + 1];
+        g_func = new gf_type[global_n + 1];
 #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i] = gf2.g_func[i];
@@ -290,19 +292,28 @@ void GenFunc::set_at(int i, gf_type x) {
     bool packed_flag = unpack();
 #endif
     g_func[i] = x;
-    min_n = min(min_n, i);
-    max_n = max(max_n, i+1);
+    if(x){
+        min_n = min(min_n, i);
+        max_n = max(max_n, i+1);
+    } else{
+        if(min_n == i){
+            min_n++;
+        }
+        if(max_n-1 == i){
+            max_n--;
+        }
+    }
 #ifdef GF_USE_PACKING
     pack(packed_flag);
 #endif
 }
 
 void GenFunc::clear_from(int i) {
-    max_n = i;
+    max_n = min(max_n, i);
 }
 
 int GenFunc::size() {
-    return n;
+    return global_n;
 }
 
 PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
