@@ -40,7 +40,6 @@ void u128_addable::add(const u128_addable &x){
 }
 u128_addable &u128_addable::operator+=(const u128_addable &y) {
     this->add(y);
-
     return *this;
 }
 u128_addable::operator bool(){
@@ -61,10 +60,35 @@ ostream& operator<<(ostream& os, const u128_addable& x){
     return os;
 }
 
+u64_addable_mod::u64_addable_mod() : x(0){
+}
+u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y){
+}
+void u64_addable_mod::add(const u64_addable_mod &y){
+    x += y.x;
+    x %= GF_MOD_CONST;
+}
+u64_addable_mod& u64_addable_mod::operator+=(const u64_addable_mod &y){
+    x += y.x;
+    x %= GF_MOD_CONST;
+    return *this;
+}
+u64_addable_mod::operator bool (){
+    return x!=0;
+}
+int u64_addable_mod::bit_size(){
+    return bit_size_64(x);
+}
+
+ostream& operator<<(ostream& os, const u64_addable_mod& x){
+    os << x.x;
+    return os;
+}
+
 GenFunc::GenFunc(int n){
     this->n = n;
     #ifndef GF_USE_PREALLOCATED
-        g_func = new u128_addable[n+1];
+        g_func = new gf_type[n+1];
     #endif
     for (int i = 0; i <= n; ++i) {
         g_func[i] = 0;
@@ -90,7 +114,7 @@ GenFunc::GenFunc(GenFunc &gf2, int mul){
 #endif
     if (gf2.g_func) {
         #ifndef GF_USE_PREALLOCATED
-        g_func = new u128_addable[n + 1];
+        g_func = new gf_type[n + 1];
         #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i + mul] = gf2.g_func[i];
@@ -119,7 +143,7 @@ GenFunc::GenFunc(const GenFunc &gf2){
     int target_n = min(n + 1, gf2.max_n);
     if (gf2.g_func) {
 #ifndef GF_USE_PREALLOCATED
-        g_func = new u128_addable[n + 1];
+        g_func = new gf_type[n + 1];
 #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i] = gf2.g_func[i];
@@ -189,7 +213,7 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
     if(!pgf){ // Nothing to do
         return false;
     }
-    g_func = new u128_addable[n+1];
+    g_func = new gf_type[n+1];
     for (int i = 0; i < n+1; ++i) {
         g_func[i] = 0;
     }
@@ -203,12 +227,13 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
         pos += index_bits;
         int x_bits = pgf->get(pos, preentry_bits);
         pos += preentry_bits;
-        if(x_bits > 64){
-            g_func[index].hi = pgf->get(pos, x_bits-64);
-            pos += x_bits-64;
-            x_bits=64;
-        }
-        g_func[index].lo = pgf->get(pos, x_bits);
+//        if(x_bits > 64){
+//            g_func[index].hi = pgf->get(pos, x_bits-64);
+//            pos += x_bits-64;
+//            x_bits=64;
+//        }
+//        g_func[index].lo = pgf->get(pos, x_bits);
+        g_func[index] = pgf->get(pos, x_bits);
         pos += x_bits;
         max_n = max(max_n, index+1);
         min_n = min(min_n, index);
@@ -226,7 +251,7 @@ GenFunc& GenFunc::operator=(const GenFunc& gf2)
 
     if (gf2.g_func) {
 #ifndef GF_USE_PREALLOCATED
-        g_func = new u128_addable[n + 1];
+        g_func = new gf_type[n + 1];
 #endif
         for (int i = gf2.min_n; i < target_n; ++i) {
             g_func[i] = gf2.g_func[i];
@@ -249,18 +274,18 @@ GenFunc& GenFunc::operator=(const GenFunc& gf2)
     return *this;
 }
 
-u128_addable GenFunc::at(int i) {
+gf_type GenFunc::at(int i) {
 #ifdef GF_USE_PACKING
     bool packed_flag = unpack();
 #endif
-    u128_addable res= g_func[i];
+    gf_type res= g_func[i];
 #ifdef GF_USE_PACKING
     pack(packed_flag);
 #endif
     return res;
 }
 
-void GenFunc::set_at(int i, u128_addable x) {
+void GenFunc::set_at(int i, gf_type x) {
 #ifdef GF_USE_PACKING
     bool packed_flag = unpack();
 #endif
@@ -309,12 +334,13 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
             pos += index_bits;
             insert(pos, element_bits[i], preentry_bits);
             pos += preentry_bits;
-            if(gf->g_func[i].hi){
-                insert(pos, gf->g_func[i].hi, element_bits[i]-64);
-                pos += element_bits[i]-64;
-                element_bits[i] = 64;
-            }
-            insert(pos, gf->g_func[i].lo, element_bits[i]);
+//            if(gf->g_func[i].hi){
+//                insert(pos, gf->g_func[i].hi, element_bits[i]-64);
+//                pos += element_bits[i]-64;
+//                element_bits[i] = 64;
+//            }
+//            insert(pos, gf->g_func[i].lo, element_bits[i]);
+            insert(pos, gf->g_func[i].x, element_bits[i]);
             pos += element_bits[i];
         }
     }

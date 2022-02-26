@@ -20,6 +20,7 @@ BoundaryPattern::BoundaryPattern(sig sig_num, int pat_length, bool disconnected)
     }
     this->disconnected = disconnected;
 }
+
 BoundaryPattern::BoundaryPattern(BoundaryPattern* bp1){
     pat_length = bp1->pat_length;
     bottom_border = bp1->bottom_border;

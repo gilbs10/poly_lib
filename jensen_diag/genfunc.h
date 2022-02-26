@@ -10,6 +10,11 @@ using namespace std;
 const int PREENTRY_BITS=7;
 const int INDEX_BITS=6;
 
+class u128_addable;
+class u64_addable_mod;
+//typedef u128_addable gf_type;
+typedef u64_addable_mod gf_type;
+
 int bit_size_64(unsigned long long);
 
 class PackedGenFunc;
@@ -28,12 +33,24 @@ public:
 
 ostream& operator<<(ostream& os, const u128_addable& x);
 
+class u64_addable_mod{
+public:
+    unsigned long long x;
+    u64_addable_mod();
+    u64_addable_mod(unsigned long long y);
+    void add(const u64_addable_mod &x);
+    u64_addable_mod &operator+=(const u64_addable_mod &y);
+    explicit operator bool ();
+    int bit_size();
+};
+ostream& operator<<(ostream& os, const u64_addable_mod& x);
+
 class GenFunc{
 private:
 #ifdef GF_USE_PREALLOCATED
-    u128_addable g_func[GF_CONST_SIZE+1];
+    gf_type g_func[GF_CONST_SIZE+1];
 #else
-    u128_addable *g_func;
+    gf_type *g_func;
 #endif
 #ifdef GF_USE_PACKING
     PackedGenFunc* pgf;
@@ -50,8 +67,8 @@ public:
     bool is_empty(int mul = 0);
     void pack(bool repack_flag = true ,int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
     bool unpack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
-    u128_addable at(int i);
-    void set_at(int i, u128_addable x);
+    gf_type at(int i);
+    void set_at(int i, gf_type x);
     void clear_from(int i);
     int size();
     bool is_valid();

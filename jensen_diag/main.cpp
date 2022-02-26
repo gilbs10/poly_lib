@@ -18,8 +18,8 @@ void print_time(){
     cout <<  "Time: " << ctime(&timenow) << flush;
 }
 
-u128_addable count_rect(int w, int n, bool wm, int num_of_threads){
-    u128_addable c = 0;
+gf_type count_rect(int w, int n, bool wm, int num_of_threads){
+    gf_type c = 0;
 //    RectManager* rm = new RectManager(w, n, bool(wm));
     RectManagerParallel* rm = new RectManagerParallel(w, n, bool(wm), num_of_threads);
     rm->run_rectangle();
@@ -32,12 +32,13 @@ u128_addable count_rect(int w, int n, bool wm, int num_of_threads){
         }
     }
     cout << "Num of sigs processed:" << rm->sig_counter << endl;
+    cout << "Result: " << c << endl;
     delete rm;
     return c;
 }
 
 void count(int n, int num_of_threads){
-    u128_addable c = 0;
+    gf_type c = 0;
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
             cout << "Running cols " << k <<", wm="<<wm << endl;

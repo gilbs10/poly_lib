@@ -421,6 +421,8 @@ void RectManagerParallel::redistribute_sigs(){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
             if (status.w % 2 && !status.col %2 && status.k_pos == 0){
                 if (bp.get_sig_num(1) < bp.get_reverse_sig_num()){
+                    delete(sig_it->second);
+                    (*(*counters_it)->sigs)[sig_it->first] = nullptr;
                     continue;
                 }
             }
@@ -435,11 +437,11 @@ void RectManagerParallel::redistribute_sigs(){
                     (*temp_counters)[occupancy_num]->add(sig_it->first, *sig_it->second, 0);
                 }
             }
+            delete(sig_it->second);
+            (*(*counters_it)->sigs)[sig_it->first] = nullptr;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
-    }
-    for(auto &counters_it: *counters){
-        delete counters_it;
+        delete *counters_it;
     }
     delete counters;
     delete counters_locks;
