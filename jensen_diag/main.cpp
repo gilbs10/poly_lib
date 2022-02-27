@@ -4,6 +4,7 @@
 #include <chrono>
 #include "genfunc.h"
 #include "RectManager.h"
+#include "settings.h"
 #include <omp.h>
 
 
@@ -20,6 +21,7 @@ void print_time(){
     cout <<  "Time: " << ctime(&timenow) << flush;
 }
 
+
 gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     gf_type c = 0;
     global_n = n;
@@ -30,12 +32,15 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
         if (rm->res->find(j) != rm->res->end()){
             c += (*rm->res)[j]->at(n);
             if(j > w){
+                if(PRINT_RES_BY_COL){
+                    cout << "<RESULT WIDTH COL> Size: " << n << " Column: " << j << " White mode: " << wm << " Count: " << (*rm->res)[j]->at(n) << endl;
+                }
                 c += (*rm->res)[j]->at(n);
             }
         }
     }
     cout << "Num of sigs processed:" << rm->sig_counter << endl;
-    cout << "Result: " << c << endl;
+    cout << "<RESULT WIDTH> Size: " << n << " White mode: " << wm << " Count: " << c << endl;
     sigs += rm->sig_counter;
     delete rm;
     return c;
@@ -51,7 +56,7 @@ void count(int n, int num_of_threads){
             c += count_rect(k, n, wm, num_of_threads);
         }
     }
-    cout << n << ": " << c << endl;
+    cout << "<RESULT TOTAL> Size: " << n << " Count: " << c << endl;
 }
 
 
