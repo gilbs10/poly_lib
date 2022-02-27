@@ -22,6 +22,7 @@ void print_time(){
 
 gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     gf_type c = 0;
+    global_n = n;
 //    RectManager* rm = new RectManager(w, n, bool(wm));
     RectManagerParallel* rm = new RectManagerParallel(w, n, bool(wm), num_of_threads);
     rm->run_rectangle();
