@@ -13,8 +13,8 @@ const int INDEX_BITS=6;
 extern int global_n;
 class u128_addable;
 class u64_addable_mod;
-//typedef u128_addable gf_type;
-typedef u64_addable_mod gf_type;
+typedef u128_addable gf_type;
+//typedef u64_addable_mod gf_type;
 
 int bit_size_64(unsigned long long);
 
@@ -87,7 +87,11 @@ public:
     PackedGenFunc(const PackedGenFunc& other);
     ~PackedGenFunc();
     void insert(int pos, unsigned long long x, int x_bits);
+    void insert(int pos, u128_addable x, int x_bits);
+    void insert(int pos, u64_addable_mod x, int x_bits);
     unsigned long long get(int pos, int x_bits) const;
+    void fetch(int pos, u128_addable* x ,int x_bits) const;
+    void fetch(int pos, u64_addable_mod* x, int x_bits) const;
     PackedGenFunc& operator=(const PackedGenFunc& other);
 };
 

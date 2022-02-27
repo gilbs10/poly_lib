@@ -230,13 +230,7 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
         pos += index_bits;
         int x_bits = pgf->get(pos, preentry_bits);
         pos += preentry_bits;
-//        if(x_bits > 64){
-//            g_func[index].hi = pgf->get(pos, x_bits-64);
-//            pos += x_bits-64;
-//            x_bits=64;
-//        }
-//        g_func[index].lo = pgf->get(pos, x_bits);
-        g_func[index] = pgf->get(pos, x_bits);
+        pgf->fetch(pos, g_func+index, x_bits);
         pos += x_bits;
         max_n = max(max_n, index+1);
         min_n = min(min_n, index);
@@ -329,7 +323,7 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
             element_bits[i] = 0;
         }
     }
-    int array_length = (bit_sum-1) / 64 + 2; // +1 to round up, +1 to avoid overflow
+    int array_length = (bit_sum-1) / 64 + 1;
     bit_array = new unsigned long long[array_length];
     for (int i = 0; i < array_length; ++i) {
         bit_array[i] = 0;
@@ -345,13 +339,7 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
             pos += index_bits;
             insert(pos, element_bits[i], preentry_bits);
             pos += preentry_bits;
-//            if(gf->g_func[i].hi){
-//                insert(pos, gf->g_func[i].hi, element_bits[i]-64);
-//                pos += element_bits[i]-64;
-//                element_bits[i] = 64;
-//            }
-//            insert(pos, gf->g_func[i].lo, element_bits[i]);
-            insert(pos, gf->g_func[i].x, element_bits[i]);
+            insert(pos, gf->g_func[i], element_bits[i]);
             pos += element_bits[i];
         }
     }
@@ -380,6 +368,20 @@ void PackedGenFunc::insert(int pos, unsigned long long x, int x_bits){
     }
 }
 
+void PackedGenFunc::insert(int pos, u128_addable x, int x_bits){
+    if(x.hi){
+        insert(pos, x.hi, x_bits-64);
+        pos += x_bits - 64;
+        x_bits = 64;
+    }
+    insert(pos, x.lo, x_bits);
+}
+
+void PackedGenFunc::insert(int pos, u64_addable_mod x, int x_bits){
+    insert(pos, x.x, x_bits);
+}
+
+
 unsigned long long PackedGenFunc::get(int pos, int x_bits) const {
     int slack = 64 - (pos % 64);
     int i = pos / 64;
@@ -392,6 +394,20 @@ unsigned long long PackedGenFunc::get(int pos, int x_bits) const {
         res |= (bit_array[i]<<(64-slack))>>(64-x_bits);
     }
     return res;
+}
+
+
+void PackedGenFunc::fetch(int pos, u128_addable* x ,int x_bits) const{
+    x->hi = 0;
+    if(x_bits > 64){
+        x->hi = get(pos, x_bits-64);
+        pos += x_bits-64;
+        x_bits=64;
+    }
+    x->lo = get(pos, x_bits);
+}
+void PackedGenFunc::fetch(int pos, u64_addable_mod* x, int x_bits) const{
+    x->x = get(pos, x_bits);
 }
 
 PackedGenFunc &PackedGenFunc::operator=(const PackedGenFunc &other) {

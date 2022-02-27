@@ -96,8 +96,21 @@ void get_input_and_run(){
 int main(){
     get_input_and_run();
     cout << "Total sigs: " << sigs;
-//    GenFunc gf(5);
-//    gf.set_at(3, 5);
+//    global_n = 10;
+//    GenFunc gf;
+//    unsigned long long x = 1 << 31;
+//    x <<= 31;
+//    cout << x << endl;
+//    u128_addable x128 = x;
+//    x128.add(x);
+//    x128.add(x);
+//    x128.add(x);
+//    x128.add(x);
+//    x128.add(x);
+//    x128.add(x);
+//    x128.add(x);
+//    cout << x128 << endl;
+//    gf.set_at(3, x128);
 //    gf.pack();
 //    for (int i = 0; i < 6; ++i) {
 //        cout << gf.at(i) << ", ";
