@@ -314,7 +314,7 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
     int bit_sum = 2*index_bits;
     int element_bits[gf->size()+1];
     int c = 0;
-    for (int i = 0; i < gf->size()+1; ++i) {
+    for (int i = gf->min_n; i < gf->max_n; ++i)  {
         if(gf->g_func[i]){
             element_bits[i] = gf->g_func[i].bit_size();
             bit_sum += element_bits[i] + preentry_bits + index_bits;
