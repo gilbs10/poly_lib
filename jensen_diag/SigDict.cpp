@@ -29,3 +29,12 @@ void SigDict::add(sig sig_num, GenFunc &gf, bool new_cell){
 bool SigDict::is_empty(){
     return sigs->size() == 0;
 }
+
+unsigned long long SigDict::size(){
+    return sigs->size();
+}
+
+bool SigDict::operator<(const SigDict &other) const {
+    return sigs->size() < other.sigs->size();
+}
+

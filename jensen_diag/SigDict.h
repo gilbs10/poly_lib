@@ -21,6 +21,8 @@ public:
     ~SigDict();
     void add(sig sig_num, GenFunc &gf, bool new_cell);
     bool is_empty();
+    unsigned long long size();
+    bool operator < (const SigDict& other) const;
     // TODO iterator
 };
 
