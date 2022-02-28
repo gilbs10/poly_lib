@@ -6,25 +6,35 @@
 #include "RectManager.h"
 #include "settings.h"
 #include <omp.h>
-
+#include <iomanip>
 
 using namespace std;
+
 long long sigs = 0;
 int global_n; //Allows us to save presious memory in each GenFunc.
-/*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
+#define ALIGN_TAB "\t"
+#define FORMAT_ATTR(a,b) " " << (a) <<": "<< (b) << ALIGN_TAB
+#define FORMAT_TITLE(a) get_time() << " <" << (a) << ">" << ALIGN_TAB
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
 
-void print_time(){
+string get_time(){
     auto timenow =
             chrono::system_clock::to_time_t(chrono::system_clock::now());
-    cout <<  "Time: " << ctime(&timenow) << flush;
+    std::string t( ctime( &timenow ) );
+    return t.substr( 0, t.length() -1  ) + " ";
 }
 
 
 gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     gf_type c = 0;
     global_n = n;
+
+    cout << FORMAT_TITLE("RUNNING RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << endl;
 //    RectManager* rm = new RectManager(w, n, bool(wm));
     RectManagerParallel* rm = new RectManagerParallel(w, n, bool(wm), num_of_threads);
     rm->run_rectangle();
@@ -33,43 +43,62 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
             c += (*rm->res)[j]->at(n);
             if(j > w){
                 if(PRINT_RES_BY_COL){
-                    cout << "<RESULT WIDTH COL> Size: " << n << " Column: " << j << " White mode: " << wm << " Count: " << (*rm->res)[j]->at(n) << endl;
+                    cout << FORMAT_TITLE("RESULT WIDTH COL");
+                    cout << FORMAT_ATTR("Size", n);
+                    cout << FORMAT_ATTR("Width", w);
+                    cout << FORMAT_ATTR("Column", j);
+                    cout << FORMAT_ATTR("White mode", wm);
+                    cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(n));
+                    cout << endl;
                 }
                 c += (*rm->res)[j]->at(n);
             }
         }
     }
-    cout << "Num of sigs processed:" << rm->sig_counter << endl;
-    cout << "<RESULT WIDTH> Size: " << n << " White mode: " << wm << " Count: " << c << endl;
-    sigs += rm->sig_counter;
+    cout << FORMAT_TITLE("SIGS RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << FORMAT_ATTR("Sigs", rm->sig_counter);
+    cout << endl;
+    cout << FORMAT_TITLE("RESULT RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << FORMAT_ATTR("Count", c);
+    cout << endl;
     delete rm;
     return c;
 }
 
 void count(int n, int num_of_threads){
+    sigs = 0;
     gf_type c = 0;
     global_n = n;
+    cout << FORMAT_TITLE("RUNNING SIZE");
+    cout << FORMAT_ATTR("Size", n);
+    cout << endl;
     for (int wm = 0; wm < 2; ++wm) {
         for (int k = 2; k < n+1; ++k) {
-            cout << "Running cols " << k <<", wm="<<wm << endl;
-            print_time();
             c += count_rect(k, n, wm, num_of_threads);
         }
     }
-    cout << "<RESULT TOTAL> Size: " << n << " Count: " << c << endl;
+
+    cout << FORMAT_TITLE("SIGS SIZE");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Sigs", sigs);
+    cout << endl;
+    cout << FORMAT_TITLE("RESULT SIZE");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Count", c);
+    cout << endl;
 }
 
 
 void run_all(int n1, int n2, int num_of_threads = 1) {
     for (int i = n1; i <= n2; ++i){
-        auto timenow =
-                chrono::system_clock::to_time_t(chrono::system_clock::now());
-        cout << "Running " << i << ", time: " << ctime(&timenow) << endl;
         count(i, num_of_threads);
     }
-    auto timenow =
-            chrono::system_clock::to_time_t(chrono::system_clock::now());
-    cout << ctime(&timenow) << endl;
 }
 
 void get_input_and_run(){
@@ -93,15 +122,14 @@ void get_input_and_run(){
         bool wm = false;
         cout << "Enter num of threads to run on:" << endl;
         cin >> num_of_threads;
-        print_time();
+//        print_time();
         cout << count_rect(w,n,wm,num_of_threads) << endl;
-        print_time();
+//        print_time();
     }
 }
 
 int main(){
     get_input_and_run();
-    cout << "Total sigs: " << sigs;
 //    global_n = 10;
 //    GenFunc gf;
 //    unsigned long long x = 1 << 31;
