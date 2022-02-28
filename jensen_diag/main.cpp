@@ -61,6 +61,7 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     cout << FORMAT_ATTR("White mode", wm);
     cout << FORMAT_ATTR("Sigs", rm->sig_counter);
     cout << endl;
+    sigs += rm->sig_counter;
     cout << FORMAT_TITLE("RESULT RECT");
     cout << FORMAT_ATTR("Size", n);
     cout << FORMAT_ATTR("Width", w);
