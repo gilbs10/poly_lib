@@ -4,6 +4,7 @@
 
 #include "RectManager.h"
 #include <omp.h>
+#include <algorithm>
 
 //
 // Created by gilbe on 13.2.2022.
@@ -349,6 +350,11 @@ int RectManagerParallel::next_traget_col() {
     }
 }
 
+
+bool PRMpointerGreater(PartialRectManager* prm1, PartialRectManager* prm2){
+    return prm1->prev_counter->size() > prm2->prev_counter->size();
+}
+
 void RectManagerParallel::run_rectangle(){
     // First column is processed separately
     int target_col;
@@ -372,6 +378,7 @@ void RectManagerParallel::run_rectangle(){
                 managers->push_back(new PartialRectManager(status, counters_it, next_traget_col(), next_target_k_pos()));
             }
         }
+        sort(managers->begin(), managers->end(), PRMpointerGreater);
 	    omp_set_num_threads(num_of_threads);
         #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
         for (int i = 0; i < managers->size(); ++i) {
@@ -397,6 +404,7 @@ void RectManagerParallel::run_rectangle(){
 bool RectManagerParallel::is_empty_counters(){
     return counters->size() == 0;
 }
+
 
 void RectManagerParallel::redistribute_sigs(){
     int c= 0;
