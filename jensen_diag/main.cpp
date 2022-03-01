@@ -44,16 +44,19 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     for (int j = w; j <= n; ++j) {
         if (rm->res->find(j) != rm->res->end()){
             c += (*rm->res)[j]->at(n);
-            if(j > w){
-                if(PRINT_RES_BY_COL){
+            if(PRINT_RES_BY_COL){
+                for (int i = 1; i <= n; ++i) {
                     cout << FORMAT_TITLE("RESULT WIDTH COL");
-                    cout << FORMAT_ATTR("Size", n);
+                    cout << FORMAT_ATTR("Run_Size", n);
+                    cout << FORMAT_ATTR("Res_Size", i);
                     cout << FORMAT_ATTR("Width", w);
                     cout << FORMAT_ATTR("Column", j);
                     cout << FORMAT_ATTR("White mode", wm);
-                    cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(n));
+                    cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(i));
                     cout << endl;
                 }
+            }
+            if(j > w){
                 c += (*rm->res)[j]->at(n);
             }
         }
@@ -135,7 +138,12 @@ void get_input_and_run(){
 }
 
 int main(){
-    get_input_and_run();
+    int cases;
+    cout << "Enter running cases:" << endl;
+    cin >> cases;
+    for (int i = 0; i < cases; ++i) {
+        get_input_and_run();
+    }
 //    global_n = 10;
 //    GenFunc gf;
 //    unsigned long long x = 1 << 31;
