@@ -66,6 +66,31 @@ ostream& operator<<(ostream& os, const u128_addable& x){
     return os;
 }
 
+u128_full::u128_full() : x(0){
+}
+u128_full::u128_full(unsigned long long y) : x(y){
+}
+void u128_full::add(const u128_full &other){
+    x += other.x;
+}
+u128_full &u128_full::operator+=(const u128_full &other){
+    this->add(other);
+    return *this;
+}
+u128_full::operator bool (){
+    return x!=0;
+}
+
+int u128_full::bit_size(){
+    return 128 - __builtin_clzll(x);
+}
+ostream& operator<<(ostream& os, const u128_full& x){
+    __int128 d = 1;
+    d << 64;
+    os << "(" << (unsigned long long)(x.x / d) << ", " <<  (unsigned long long)(x.x % d) << ")";
+    return os;
+}
+
 u64_addable_mod::u64_addable_mod() : x(0){
 }
 u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y){
@@ -380,7 +405,9 @@ void PackedGenFunc::insert(int pos, u128_addable x, int x_bits){
 void PackedGenFunc::insert(int pos, u64_addable_mod x, int x_bits){
     insert(pos, x.x, x_bits);
 }
-
+void PackedGenFunc::insert(int pos, u128_full x, int x_bits){
+    insert(pos, x.x, x_bits);
+}
 
 unsigned long long PackedGenFunc::get(int pos, int x_bits) const {
     int slack = 64 - (pos % 64);
@@ -407,6 +434,10 @@ void PackedGenFunc::fetch(int pos, u128_addable* x ,int x_bits) const{
     x->lo = get(pos, x_bits);
 }
 void PackedGenFunc::fetch(int pos, u64_addable_mod* x, int x_bits) const{
+    x->x = get(pos, x_bits);
+}
+
+void PackedGenFunc::fetch(int pos, u128_full* x, int x_bits) const{
     x->x = get(pos, x_bits);
 }
 

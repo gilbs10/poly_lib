@@ -120,11 +120,13 @@ void get_input_and_run(){
         cin >> n;
         cout << "Enter width:" << endl;
         cin >> w;
-        bool wm = false;
+        cout << "White mode? (y/n):" << endl;
+        char wm;
+        cin >> wm;
         cout << "Enter num of threads to run on:" << endl;
         cin >> num_of_threads;
 //        print_time();
-        cout << count_rect(w,n,wm,num_of_threads) << endl;
+        cout << count_rect(w,n,wm == 'y',num_of_threads) << endl;
 //        print_time();
     }
 }

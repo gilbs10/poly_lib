@@ -8,12 +8,14 @@
 using namespace std;
 
 const int PREENTRY_BITS=7;
-const int INDEX_BITS=6;
+const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 
 extern int global_n;
 class u128_addable;
+class u128_full;
 class u64_addable_mod;
-typedef u128_addable gf_type;
+typedef u128_addable gf_type; // Slightly faster than u128_full
+//typedef u128_full gf_type;
 //typedef u64_addable_mod gf_type;
 
 int bit_size_64(unsigned long long);
@@ -33,6 +35,20 @@ public:
 };
 
 ostream& operator<<(ostream& os, const u128_addable& x);
+
+class u128_full{
+    /* A very simple 128 bit integer using two long long which supports only addition.*/
+public:
+    __int128 x;
+    u128_full();
+    u128_full(unsigned long long y);
+    void add(const u128_full &x);
+    u128_full &operator+=(const u128_full &y);
+    explicit operator bool ();
+    int bit_size();
+};
+
+ostream& operator<<(ostream& os, const u128_full& x);
 
 class u64_addable_mod{
 public:
@@ -89,9 +105,11 @@ public:
     void insert(int pos, unsigned long long x, int x_bits);
     void insert(int pos, u128_addable x, int x_bits);
     void insert(int pos, u64_addable_mod x, int x_bits);
+    void insert(int pos, u128_full x, int x_bits);
     unsigned long long get(int pos, int x_bits) const;
     void fetch(int pos, u128_addable* x ,int x_bits) const;
     void fetch(int pos, u64_addable_mod* x, int x_bits) const;
+    void fetch(int pos, u128_full* x, int x_bits) const;
     PackedGenFunc& operator=(const PackedGenFunc& other);
 };
 

@@ -12,8 +12,8 @@
 #include "set"
 using namespace std;
 
-typedef unsigned long long int sig; // TODO: change to type that will support 128 or arbitrary num of bits
-
+//typedef unsigned long long int sig;
+typedef __int128 sig;
 
 class BoundaryPattern{
     /* A modifyable pattern, right now it is optimize to minimize memory consumption, i.e. using log_2(5) bits per
