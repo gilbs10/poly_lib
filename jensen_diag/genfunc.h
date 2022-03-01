@@ -8,7 +8,7 @@
 using namespace std;
 
 const int PREENTRY_BITS=7;
-const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
+const int INDEX_BITS=6; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 
 extern int global_n;
 class u128_addable;

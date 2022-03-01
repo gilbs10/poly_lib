@@ -1,35 +1,38 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
-#include <chrono>
 #include "genfunc.h"
 #include "RectManager.h"
 #include "settings.h"
 #include <omp.h>
-#include <iomanip>
 
 using namespace std;
 
 long long sigs = 0;
 int global_n; //Allows us to save presious memory in each GenFunc.
-#define ALIGN_TAB "\t"
-#define FORMAT_ATTR(a,b) " " << (a) <<": "<< (b) << ALIGN_TAB
-#define FORMAT_TITLE(a) get_time() << " <" << (a) << ">" << ALIGN_TAB
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
 
 string get_time(){
-    auto timenow =
-            chrono::system_clock::to_time_t(chrono::system_clock::now());
-    std::string t( ctime( &timenow ) );
-    return t.substr( 0, t.length() -1  ) + " ";
+auto timenow =
+        chrono::system_clock::to_time_t(chrono::system_clock::now());
+std::string t( ctime( &timenow ) );
+return t.substr( 0, t.length() -1  ) + " ";
 }
-
 
 gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     gf_type c = 0;
     global_n = n;
-
+#ifdef LIMIT_SIG_64
+    if(w >= 52){
+        cout << FORMAT_TITLE("WIDTH TOO WIDE");
+        cout << FORMAT_ATTR("Size", n);
+        cout << FORMAT_ATTR("Width", w);
+        cout << FORMAT_ATTR("White mode", wm);
+        cout << endl;
+        return 0;
+    }
+#endif
     cout << FORMAT_TITLE("RUNNING RECT");
     cout << FORMAT_ATTR("Size", n);
     cout << FORMAT_ATTR("Width", w);

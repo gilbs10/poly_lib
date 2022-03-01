@@ -10,10 +10,15 @@
 #include <stack>
 #include <queue>
 #include "set"
+#include "settings.h"
+
 using namespace std;
 
-//typedef unsigned long long int sig;
+#ifdef LIMIT_SIG_64
+typedef unsigned long long int sig;
+#else
 typedef __int128 sig;
+#endif
 
 class BoundaryPattern{
     /* A modifyable pattern, right now it is optimize to minimize memory consumption, i.e. using log_2(5) bits per
