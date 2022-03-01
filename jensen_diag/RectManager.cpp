@@ -372,7 +372,7 @@ void RectManagerParallel::run_rectangle(){
     vector<PartialRectManager*>* managers = new vector<PartialRectManager*>;
     while(!is_empty_counters() or status.col < 2){
         if(PRINT_RES_BY_COL){
-            cout << FORMAT_TITLE("RUN COL");
+            cout << FORMAT_TITLE("RUNNING COL");
             cout << FORMAT_ATTR("Size", status.n);
             cout << FORMAT_ATTR("Width", status.w);
             cout << FORMAT_ATTR("Col", status.col);
