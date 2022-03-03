@@ -1,0 +1,12 @@
+#!/bin/sh
+#PBS -N jensen_diag_60_35n
+#PBS -q zeus_long_q
+#PBS -m abe
+#PBS -M gilbe@cs.technion.ac.il
+#PBS -l select=1:ncpus=30:mpiprocs=0
+#PBS -l select=mem=128GB
+#PBS -l walltime=36:00:00
+PBS_O_WORKDIR=$HOME/workspace/poly_lib/jensen_diag/release
+cd $PBS_O_WORKDIR
+
+./jensen_diag < in60_35n.txt > out60_35n.txt 2>&1
