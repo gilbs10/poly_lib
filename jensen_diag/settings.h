@@ -20,7 +20,7 @@ using namespace std;
 //#define GF_MOD_CONST 65535
 #define LIMIT_SIG_64
 
-const bool PRINT_RES_BY_COL = false;
+const bool PRINT_RES_BY_COL = true;
 
 
 string get_time();
