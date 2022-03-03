@@ -431,7 +431,7 @@ void RectManagerParallel::redistribute_sigs(){
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
-//    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
+    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             bool use_rev = false;
