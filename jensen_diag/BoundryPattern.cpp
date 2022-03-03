@@ -13,7 +13,7 @@ BoundaryPattern::BoundaryPattern(sig sig_num, int pat_length, bool disconnected)
     sig_num /= 2;
     top_border = bool(sig_num % 2);
     sig_num /= 2;
-    pattern = new int[pat_length+1](); // Padded by zero to handle kink in the last position
+    pattern = new int[pat_length+1](); // Padded by zero to handle kink in the last position easily
     for (int i = 0; i < pat_length; ++i) {
         pattern[i] = sig_num%5;
         sig_num /= 5;
@@ -43,24 +43,9 @@ sig BoundaryPattern::get_sig_num(int ignore_last){
     return sig_num*4 + 2*top_border + bottom_border;
 }
 
-sig BoundaryPattern::get_sig_motz(){
+sig BoundaryPattern::get_reverse_sig_num(int ignore_first) {
     sig sig_num = 0;
-    if(pattern[0]){
-        sig_num = 1;
-    }
-    for (int i = 0; i < pat_length; --i) {
-        sig_num *= 3;
-        if(pattern[i] == 1 || pattern[i] == 2){
-
-        }
-        sig_num += pattern[i];
-    }
-    return sig_num*4 + 2*top_border + bottom_border;
-}
-
-sig BoundaryPattern::get_reverse_sig_num() {
-    sig sig_num = 0;
-    for (int i = 0; i < pat_length-1; ++i) {
+    for (int i = ignore_first; i < pat_length; ++i) {
         sig_num *= 5;
         switch(pattern[i]){
             case 2:
@@ -89,6 +74,30 @@ sig BoundaryPattern::get_occupancy_num(int s, int t){
         }
     }
     return occupancy_num;
+}
+
+void BoundaryPattern::reverse(bool gray_col){
+    if(gray_col) {
+        for (int i = 0; i < (pat_length) / 2; ++i) {
+            swap(pattern[i], pattern[pat_length - 1 - i]);
+        }
+    }
+    else {
+        for (int i = 1; i < (pat_length-1) / 2 + 1; ++i) {
+            swap(pattern[i], pattern[pat_length - i]);
+        }
+    }
+    for (int i = 0; i < pat_length; ++i) {
+        switch (pattern[i]) {
+            case 2:
+                pattern[i] = 4;
+                break;
+            case 4:
+                pattern[i] = 2;
+                break;
+        }
+    }
+    swap(top_border,bottom_border);
 }
 
 // Returns min dist to connect all the components and max dist between two components

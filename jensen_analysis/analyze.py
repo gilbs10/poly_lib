@@ -5,12 +5,9 @@ import matplotlib.pyplot as plt
 import pandas
 import pandas as pd
 
-mem_logger_file = "memlogger.9.log"
-jensenlog_file = 'res_detailed_56.txt'
-
-def load_memlogger_file():
+def load_memlogger_file(path):
     logs = {}
-    with open(mem_logger_file, "r") as f:
+    with open(path, "r") as f:
         title = f.readline().split(", ")
         title = [x.strip() for x in title]
         for t in title:
@@ -30,9 +27,9 @@ def parse_value(x):
         x = x[0]*2**64+x[1]
     return x
 
-def load_jensenlog_file():
+def load_jensenlog_file(path):
     logs = {}
-    with open(jensenlog_file, "r") as f:
+    with open(path, "r") as f:
         for line in f:
             row_title = re.findall("<.*?>", line)
             if row_title:
@@ -52,10 +49,39 @@ def load_jensenlog_file():
 
 
 def main():
-    logs = load_jensenlog_file()
-    for log in logs:
-        print(log)
-        print(logs[log])
+    mem_logger_file = "memlogger.9.log"
+    jensenlog_files = ['out57_31n.txt', 'out57_31y.txt', 'out57_32n.txt', 'out57_32y.txt', 'res_rect_57_all_32G.txt', 'res_52p.txt']
+    counts = {}
+    for jlf in jensenlog_files:
+        print(jlf)
+        logs = load_jensenlog_file(jlf)
+        res_log = logs['RESULT WIDTH COL']
+        for i, row in res_log.iterrows():
+            k = (row['Res_Size'], row['Width'], row['Column'], row['White mode'])
+            if(row['Count']):
+                # print(k, row['Count'])
+                if k in counts:
+                    if counts[k] != row['Count']:
+                        print("Ahhhh", counts[k], row['Count'])
+                        exit(1)
+                counts[k] = row['Count']
+    max_n = 58
+    for n in range(3, max_n+1):
+        c = 0
+        for w in range(2, n+1):
+            for col in range(w, n+2):
+                for wm in [0, 1]:
+                    k = (n, w, col, wm)
+                    if k not in counts:
+                        pass
+                        # print("Missing: ", k)
+                    else:
+                        # print(k, c)
+                        c += counts[k]
+                        if(col > w):
+                            c += counts[k]
+        print(n,c)
+
     # mem_logs = load_memlogger_file()
     # fig, ax1 = plt.subplots()
     # ax1.plot(mem_logs['Time'], mem_logs['RES'])

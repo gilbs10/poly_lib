@@ -115,13 +115,13 @@ void RectManager::count_res(GenFunc &gf){
 
 void RectManager::filter_gf(GenFunc &gf, BoundaryPattern* bp){
 
-    int h_dist = status.w - status.col + status.white_mode - 1; // TODO: verify
+    int h_dist = max(status.w - status.col + status.white_mode - 1, 0);
     int v_dist = bp->border_dist(status);
     pair<int, int> internal_dist = bp->internal_dist(status);
     int total_internal_dist = internal_dist.first;
     int max_internal_dist = internal_dist.second;
 
-    int dist = max(max(h_dist, h_dist -(max_internal_dist/2 + 1)+total_internal_dist), v_dist+total_internal_dist);
+    int dist = max(max(h_dist, h_dist -((max_internal_dist-1)/2 + 1)+total_internal_dist), v_dist+total_internal_dist);
 //    int dist = max(h_dist, v_dist);
     gf.clear_from(status.n-dist+1);
 }
@@ -431,15 +431,14 @@ void RectManagerParallel::redistribute_sigs(){
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
-    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
+//    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
+            bool use_rev = false;
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-            if (status.w % 2 && !status.col %2 && status.k_pos == 0){
-                if (bp.get_sig_num(1) < bp.get_reverse_sig_num()){
-                    delete(sig_it->second);
-                    (*(*counters_it)->sigs)[sig_it->first] = nullptr;
-                    continue;
+            if (status.w % 2 && status.k_pos == 0){
+                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
+                    bp.reverse(status.col %2);
                 }
             }
             sig occupancy_num = bp.get_occupancy_num(s, t);
@@ -447,12 +446,7 @@ void RectManagerParallel::redistribute_sigs(){
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
             }
-            (*temp_counters)[occupancy_num]->add(sig_it->first, *sig_it->second, 0);
-            if (status.w % 2 && !status.col %2 && status.k_pos == 0){
-                if (bp.get_sig_num(1) > bp.get_reverse_sig_num()){
-                    (*temp_counters)[occupancy_num]->add(sig_it->first, *sig_it->second, 0);
-                }
-            }
+            (*temp_counters)[occupancy_num]->add(bp.get_sig_num(), *sig_it->second, 0);
             delete(sig_it->second);
             (*(*counters_it)->sigs)[sig_it->first] = nullptr;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));

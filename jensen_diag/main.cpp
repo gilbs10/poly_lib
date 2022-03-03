@@ -82,15 +82,21 @@ void count(int n, int num_of_threads){
     sigs = 0;
     gf_type c = 0;
     global_n = n;
+    gf_type res;
     cout << FORMAT_TITLE("RUNNING SIZE");
     cout << FORMAT_ATTR("Size", n);
     cout << endl;
-    for (int wm = 0; wm < 2; ++wm) {
-        for (int k = 2; k < n+1; ++k) {
-            c += count_rect(k, n, wm, num_of_threads);
+    for (int w = 2; w < n+1; ++w) {
+        if(w%2 == 0){
+            res = count_rect(w, n, false, num_of_threads);
+            c += res;
+            c += res;
+        } else {
+            for (int wm = 0; wm < 2; ++wm) {
+                c += count_rect(w, n, wm, num_of_threads);
+            }
         }
     }
-
     cout << FORMAT_TITLE("SIGS SIZE");
     cout << FORMAT_ATTR("Size", n);
     cout << FORMAT_ATTR("Sigs", sigs);
@@ -144,6 +150,20 @@ int main(){
     for (int i = 0; i < cases; ++i) {
         get_input_and_run();
     }
+    BoundaryPattern bp1 = BoundaryPattern(0, 3);
+    bp1.top_border = true;
+    bp1.pattern[0] = 2;
+    bp1.pattern[1] = 4;
+    cout << bp1.get_sig_num() << endl;
+    cout << bp1.get_reverse_sig_num() << endl;
+    BoundaryPattern bp2 = BoundaryPattern(0, 3);
+    bp2.pattern[1] = 2;
+    bp2.pattern[2] = 4;
+    bp2.bottom_border = true;
+    cout << bp2.get_sig_num() << endl;
+    cout << bp2.get_reverse_sig_num() << endl;
+
+
 //    global_n = 10;
 //    GenFunc gf;
 //    unsigned long long x = 1 << 31;

@@ -37,9 +37,9 @@ public:
     BoundaryPattern(BoundaryPattern* bp1);
     ~BoundaryPattern();
     sig get_sig_num(int ignore_last = 0);
-    sig get_sig_motz();
-    sig get_reverse_sig_num();
+    sig get_reverse_sig_num(int ignore_first = 0);
     sig get_occupancy_num(int s, int t);
+    void reverse(bool gray_col);
     pair<int, int> internal_dist(RectStatus& status);
     int border_dist(RectStatus& status);
     int pos2k(int pos, RectStatus& status);
