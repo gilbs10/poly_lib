@@ -18,10 +18,10 @@ using namespace std;
 //#define GF_MOD_CONST 36028797018963968
 #define GF_MOD_CONST 2147483648
 //#define GF_MOD_CONST 65535
-#define LIMIT_SIG_64
+//#define LIMIT_SIG_64
 
 const bool PRINT_RES_BY_COL = true;
-
+const bool FIXED_NUM_OF_THREADS = true;
 
 string get_time();
 

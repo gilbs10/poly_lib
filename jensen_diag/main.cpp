@@ -154,14 +154,10 @@ int main(){
     bp1.top_border = true;
     bp1.pattern[0] = 2;
     bp1.pattern[1] = 4;
-    cout << bp1.get_sig_num() << endl;
-    cout << bp1.get_reverse_sig_num() << endl;
     BoundaryPattern bp2 = BoundaryPattern(0, 3);
     bp2.pattern[1] = 2;
     bp2.pattern[2] = 4;
     bp2.bottom_border = true;
-    cout << bp2.get_sig_num() << endl;
-    cout << bp2.get_reverse_sig_num() << endl;
 
 
 //    global_n = 10;

@@ -5,6 +5,7 @@
 #include "RectManager.h"
 #include <omp.h>
 #include <algorithm>
+#include "settings.h"
 
 //
 // Created by gilbe on 13.2.2022.
@@ -387,7 +388,9 @@ void RectManagerParallel::run_rectangle(){
             }
         }
         sort(managers->begin(), managers->end(), PRMpointerGreater);
-	    omp_set_num_threads(num_of_threads);
+        if(FIXED_NUM_OF_THREADS){
+            omp_set_num_threads(num_of_threads);
+        }
         #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
         for (int i = 0; i < managers->size(); ++i) {
             (*managers)[i]->run_rectangle();

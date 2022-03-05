@@ -50,7 +50,11 @@ def load_jensenlog_file(path):
 
 def main():
     mem_logger_file = "memlogger.9.log"
-    jensenlog_files = ['out57_31n.txt', 'out57_31y.txt', 'out57_32n.txt', 'out57_32y.txt', 'res_rect_57_all_32G.txt', 'res_52p.txt']
+    # jensenlog_files = ['out57_31n.txt', 'out57_31y.txt', 'out57_32n.txt', 'out57_32y.txt', 'res_rect_57_all_32G.txt', 'res_52p.txt']
+    jensenlog_files = [f'out60_{n}.txt' for n in range(30,37,2)]
+    jensenlog_files += [f'out60_{n}n.txt' for n in range(31,36,2)]
+    jensenlog_files += [f'out60_{n}y.txt' for n in range(31,36,2)]
+    jensenlog_files += ['res60_29m.txt', 'res60_37p.txt', 'res60_52p.txt', 'res60_51n.txt']
     counts = {}
     for jlf in jensenlog_files:
         print(jlf)
@@ -65,7 +69,7 @@ def main():
                         print("Ahhhh", counts[k], row['Count'])
                         exit(1)
                 counts[k] = row['Count']
-    max_n = 58
+    max_n = 61
     for n in range(3, max_n+1):
         c = 0
         for w in range(2, n+1):
@@ -80,6 +84,16 @@ def main():
                         c += counts[k]
                         if(col > w):
                             c += counts[k]
+                    if w%2 == 0:
+                        k = (n, w, col, 0 if wm == 1 else 1)
+                        if k not in counts:
+                            pass
+                            # print("Missing: ", k)
+                        else:
+                            # print(k, c)
+                            c += counts[k]
+                            if (col > w):
+                                c += counts[k]
         print(n,c)
 
     # mem_logs = load_memlogger_file()
