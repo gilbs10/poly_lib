@@ -120,9 +120,9 @@ GenFunc::GenFunc(){
     #ifndef GF_USE_PREALLOCATED
         g_func = new gf_type[global_n+1];
     #endif
-    for (int i = 0; i <= global_n; ++i) {
-        g_func[i] = 0;
-    };
+//    for (int i = 0; i <= global_n; ++i) {
+//        g_func[i] = 0;
+//    };
     max_n = 0; // Pos of the element *after* the last non-zero element
     min_n = global_n+2;
     #ifdef GF_USE_PACKING
@@ -314,7 +314,7 @@ void GenFunc::set_at(int i, gf_type x) {
     if(x){
         min_n = min(min_n, i);
         max_n = max(max_n, i+1);
-    } else{
+    }else{
         if(min_n == i){
             min_n++;
         }

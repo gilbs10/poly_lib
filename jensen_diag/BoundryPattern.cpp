@@ -173,31 +173,37 @@ int BoundaryPattern::pos2k(int pos, RectStatus &status) {
 BoundaryGraph::BoundaryGraph(int max_n){
     this->max_n = max_n;
     num_of_nodes = 0;
-    node_degree = (int*)malloc(max_n*sizeof(int));
-    adj_mat = (Edge*) malloc(max_n*max_n*sizeof(Edge));
+    num_of_edges = 0;
+//    node_degree = (int*)malloc(max_n*sizeof(int));
+//    adj_mat = (Edge*) malloc(max_n*max_n*sizeof(Edge));
+    edge_list = (Edge*) malloc(max_n*max_n*sizeof(Edge));
 }
 
 
 BoundaryGraph::~BoundaryGraph(){
-    free(node_degree);
-    free(adj_mat);
+//    free(node_degree);
+//    free(adj_mat);
+    free(edge_list);
 }
 
 
 
 void BoundaryGraph::insert(int s, int t, int d){
-    insert_directed(s, t, d);
-    insert_directed(t, s, d);
+    edge_list[num_of_edges] = {s,t,d};
+    num_of_edges++;
+    num_of_nodes = max(max(num_of_nodes, s+1), t+1);
+//    insert_directed(s, t, d);
+//    insert_directed(t, s, d);
 }
 
 void BoundaryGraph::insert_directed(int s, int t, int d) {
     // Assuming nodes are added in sequential increasing order, it is indeed the case.
-    if(s >= num_of_nodes){
-        node_degree[s] = 0;
-        num_of_nodes++;
-    }
-    adj_mat[s*max_n+node_degree[s]] = {t, d};
-    node_degree[s]++;
+//    if(s >= num_of_nodes){
+//        node_degree[s] = 0;
+//        num_of_nodes++;
+//    }
+//    adj_mat[s*max_n+node_degree[s]] = {t, d};
+//    node_degree[s]++;
 }
 
 
@@ -211,33 +217,94 @@ bool Edge::operator>(const Edge &e) {
     return this->weight > e.weight;
 }
 
-pair<int, int> BoundaryGraph::get_mst_weight() {
-    int total_weight = 0, max_weight = 0;
-    int pos;
-    bool visited[num_of_nodes];
-    int num_of_edges = 0;
-    for (int i = 0; i < num_of_nodes; ++i) {
-        visited[i] = false;
-        num_of_edges += node_degree[i];
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+struct unionfind
+{
+    int* rank;
+    int* parent;
+    unionfind(int size)
+    {
+        rank= new int[size]();
+        parent=new int[size];
+        for(int i=0;i<size;i++)
+            parent[i]=i;
     }
-    Edge cur_edge;
-    priority_queue<Edge, vector<Edge>, greater<>> edge_q;
-    edge_q.push({0,0});
-    while(!edge_q.empty()){
-        cur_edge = edge_q.top();
-        edge_q.pop();
-        if(!visited[cur_edge.target]){
-            visited[cur_edge.target] = true;
-            total_weight += cur_edge.weight;
-            max_weight = max(max_weight, cur_edge.weight);
-            pos = cur_edge.target*max_n;
-            for (int i = 0; i < node_degree[cur_edge.target]; ++i) {
-                if (!visited[adj_mat[pos].target]) {
-                    edge_q.push(adj_mat[pos]);
-                }
-                pos++;
-            }
+    ~unionfind(){
+        delete[] rank;
+        delete[] parent;
+    }
+
+    int find(int x){
+        int tmp=x;
+        while(x!=parent[x]) x=parent[x];
+        while(tmp!=x)//for log*, not needed most of the time
+        {
+            int remember=parent[tmp];
+            parent[tmp]=x;
+            tmp=remember;
+        }
+        return x;
+    }
+    void Union(int p, int q){
+        p = find(p);
+        q = find(q);
+        if(q==p)
+        {
+            //alredy in the same group
+            return;
+        }
+        if(rank[p] < rank[q]) parent[p] = q;
+        else parent[q] = p;
+        if(rank[p] == rank[q]) rank[p]++;
+    }
+};
+
+pair<int, int> BoundaryGraph::get_mst_weight() {
+    unionfind nodes_uf = unionfind(num_of_nodes);
+    int total_weight = 0, max_weight = 0;
+    sort(edge_list, edge_list+num_of_edges);
+    for(int i = 0; i < num_of_edges; ++i) {
+        int s = edge_list[i].source, t = edge_list[i].target;
+        if(nodes_uf.find(s) != nodes_uf.find(t)){
+            nodes_uf.Union(s,t);
+            max_weight = edge_list[i].weight;
+            total_weight += max_weight;
         }
     }
-    return {total_weight, max_weight}; //todo
+    return {total_weight, max_weight};
 }
+//
+//pair<int, int> BoundaryGraph::get_mst_weight_prim() {
+//    int total_weight = 0, max_weight = 0;
+//    int pos;
+//    bool visited[num_of_nodes];
+//    int num_of_edges = 0;
+//    for (int i = 0; i < num_of_nodes; ++i) {
+//        visited[i] = false;
+//        num_of_edges += node_degree[i];
+//    }
+//    Edge cur_edge;
+//    priority_queue<Edge, vector<Edge>, greater<>> edge_q;
+//    edge_q.push({0,0});
+//    while(!edge_q.empty()){
+//        cur_edge = edge_q.top();
+//        edge_q.pop();
+//        if(!visited[cur_edge.target]){
+//            visited[cur_edge.target] = true;
+//            total_weight += cur_edge.weight;
+//            max_weight = max(max_weight, cur_edge.weight);
+//            pos = cur_edge.target*max_n;
+//            for (int i = 0; i < node_degree[cur_edge.target]; ++i) {
+//                if(!visited[adj_mat[pos].target]) {
+//                    edge_q.push(adj_mat[pos]);
+//                }
+//                pos++;
+//            }
+//        }
+//    }
+//    return {total_weight, max_weight}; //todo
+//}

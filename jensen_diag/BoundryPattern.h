@@ -47,6 +47,7 @@ public:
 };
 
 struct Edge{
+    int source;
     int target;
     int weight;
     bool operator<(const Edge& e);
@@ -58,8 +59,10 @@ public:
     // Ugly, but much faster than stl containers since it allows on-demand initialization.
     // Finding the size of the graph beforehand is expensive in our case.
     int num_of_nodes;
-    int* node_degree;
-    Edge* adj_mat;
+    int num_of_edges;
+//    int* node_degree;
+//    Edge* adj_mat;
+    Edge* edge_list;
     int max_n;
     BoundaryGraph(int pat_length);
     ~BoundaryGraph();
