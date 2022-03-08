@@ -3,10 +3,10 @@
 
 using namespace std;
 
-int8_t min(int8_t x, int8_t y){
+inline int8_t min(int8_t x, int8_t y){
     return x < y ? x : y;
 }
-int8_t max(int8_t x, int8_t y){
+inline int8_t max(int8_t x, int8_t y){
     return x > y ? x : y;
 }
 
@@ -28,7 +28,7 @@ void print_bit_array(unsigned long long* bit_array){
 }
 
 
-int bit_size_64(unsigned long long x){
+inline int bit_size_64(unsigned long long x){
     if(x){
         return 64 - __builtin_clzll(x);
     }
@@ -93,7 +93,7 @@ ostream& operator<<(ostream& os, const u128_full& x){
 
 u64_addable_mod::u64_addable_mod() : x(0){
 }
-u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y){
+u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y % GF_MOD_CONST){
 }
 void u64_addable_mod::add(const u64_addable_mod &y){
     x += y.x;
