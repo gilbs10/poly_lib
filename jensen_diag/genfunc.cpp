@@ -91,17 +91,26 @@ ostream& operator<<(ostream& os, const u128_full& x){
     return os;
 }
 
-u64_addable_mod::u64_addable_mod() : x(0){
+u64_addable_mod::u64_addable_mod() : x(GF_MOD_CONST){
 }
 u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y % GF_MOD_CONST){
+    if(x == 0){
+        x = GF_MOD_CONST;
+    }
 }
 void u64_addable_mod::add(const u64_addable_mod &y){
     x += y.x;
     x %= GF_MOD_CONST;
+    if(x == 0){
+        x = GF_MOD_CONST;
+    }
 }
 u64_addable_mod& u64_addable_mod::operator+=(const u64_addable_mod &y){
     x += y.x;
     x %= GF_MOD_CONST;
+    if(x == 0){
+        x = GF_MOD_CONST;
+    }
     return *this;
 }
 u64_addable_mod::operator bool (){
@@ -349,6 +358,8 @@ PackedGenFunc::PackedGenFunc(GenFunc* gf, int preentry_bits, int index_bits){
         }
     }
     int array_length = (bit_sum-1) / 64 + 1;
+    cout << bit_sum << endl;
+    cout << array_length << endl;
     bit_array = new unsigned long long[array_length];
     for (int i = 0; i < array_length; ++i) {
         bit_array[i] = 0;

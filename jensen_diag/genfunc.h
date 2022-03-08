@@ -7,16 +7,16 @@
 
 using namespace std;
 
-const int PREENTRY_BITS=7;
+const int PREENTRY_BITS=3;
 const int INDEX_BITS=6; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 
 extern int global_n;
 class u128_addable;
 class u128_full;
 class u64_addable_mod;
-typedef u128_addable gf_type; // Slightly faster than u128_full
+//typedef u128_addable gf_type; // Slightly faster than u128_full
 //typedef u128_full gf_type;
-//typedef u64_addable_mod gf_type;
+typedef u64_addable_mod gf_type;
 
 int bit_size_64(unsigned long long);
 
