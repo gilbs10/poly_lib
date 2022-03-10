@@ -1,6 +1,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include "data_types.h"
 #include "genfunc.h"
 #include "RectManager.h"
 #include "settings.h"
@@ -150,36 +151,10 @@ int main(){
     for (int i = 0; i < cases; ++i) {
         get_input_and_run();
     }
-    BoundaryPattern bp1 = BoundaryPattern(0, 3);
-    bp1.top_border = true;
-    bp1.pattern[0] = 2;
-    bp1.pattern[1] = 4;
-    BoundaryPattern bp2 = BoundaryPattern(0, 3);
-    bp2.pattern[1] = 2;
-    bp2.pattern[2] = 4;
-    bp2.bottom_border = true;
+//    SigDict sd();
+//    sig sig_num = 6;
+//    GenFunc gf();
+//    gf.at
 
-
-//    global_n = 10;
-//    GenFunc gf;
-//    unsigned long long x = 1 << 31;
-//    x <<= 31;
-//    cout << x << endl;
-//    u128_addable x128 = x;
-//    x128.add(x);
-//    x128.add(x);
-//    x128.add(x);
-//    x128.add(x);
-//    x128.add(x);
-//    x128.add(x);
-//    x128.add(x);
-//    cout << x128 << endl;
-//    gf.set_at(3, x128);
-//    gf.pack();
-//    for (int i = 0; i < 6; ++i) {
-//        cout << gf.at(i) << ", ";
-//    }
-//    gf.unpack();
-//    cout << endl;
     return 0;
 }

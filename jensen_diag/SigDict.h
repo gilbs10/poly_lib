@@ -14,16 +14,24 @@
 typedef absl::flat_hash_map<sig, GenFunc*> sig_map;
 //typedef unordered_map<sig, GenFunc*> sig_map;
 
+const int NUM_OF_SIGS_BITS = 32; //Should suffice, but verify
+
 class SigDict{
 public:
-    sig_map * sigs;
+    sig_map* sigs;
+    PackedArray* psd;
+    int packed_pos;
     SigDict();
     ~SigDict();
     void add(sig sig_num, GenFunc &gf, bool new_cell);
+    void allocate(int bit_size, int num_of_elements);
+    void append(sig sig_num, GenFunc &gf);
     bool is_empty();
-    unsigned long long size();
+    unsigned long long size() const;
+    void pack();
+    void unpack();
     bool operator < (const SigDict& other) const;
-    // TODO iterator
 };
+
 
 #endif //JENSEN_DIAG_SIGDICT_H

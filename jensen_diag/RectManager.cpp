@@ -5,6 +5,7 @@
 #include "RectManager.h"
 #include <omp.h>
 #include <algorithm>
+#include <iostream>
 #include "settings.h"
 
 //
@@ -294,10 +295,12 @@ PartialRectManager::PartialRectManager(RectStatus status1, SigDict *starting_cou
 }
 
 void PartialRectManager::run_rectangle(){
+    prev_counter->unpack();
     while(status.col < target_col || (status.col == target_col && status.k_pos < target_k_pos)){
         process_sigdict(prev_counter, counter);
         inc_cell();
     }
+    prev_counter->pack();
 }
 
 void PartialRectManager::set_seeder(){
@@ -430,26 +433,52 @@ void RectManagerParallel::redistribute_sigs(){
     }
 
     vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
+    vector<int>* counters_packed_sizes = new vector<int>(1<<(t-s), NUM_OF_SIGS_BITS);
+    vector<int>* counters_size = new vector<int>(1<<(t-s), 0);
     vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
-    #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_locks, s, t)
+
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
+        (*counters_it)->unpack();
+        for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
+            BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
+//            if (status.w % 2 && status.k_pos == 0){
+//                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
+//                    bp.reverse(status.col %2);
+//                }
+//            }
+            sig occupancy_num = bp.get_occupancy_num(s, t);
+            omp_set_lock(&((*counters_locks)[occupancy_num]));
+            (*counters_packed_sizes)[occupancy_num] += (PREENTRY_BITS
+                                                     +  bit_size_64(sig_it->first)
+                                                     +  sig_it->second->bit_size());
+            (*counters_size)[occupancy_num] += 1;
+            omp_unset_lock(&((*counters_locks)[occupancy_num]));
+        }
+        (*counters_it)->pack();
+    }
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+    for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
+        (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             bool use_rev = false;
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-            if (status.w % 2 && status.k_pos == 0){
-                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
-                    bp.reverse(status.col %2);
-                }
-            }
+//            if (status.w % 2 && status.k_pos == 0){
+//                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
+//                    bp.reverse(status.col %2);
+//                }
+//            }
             sig occupancy_num = bp.get_occupancy_num(s, t);
             omp_set_lock(&((*counters_locks)[occupancy_num]));
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
+                (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
             }
-            (*temp_counters)[occupancy_num]->add(bp.get_sig_num(), *sig_it->second, 0);
+//            (*temp_counters)[occupancy_num]->add(bp.get_sig_num(), *sig_it->second, 0);
+            (*temp_counters)[occupancy_num]->append(bp.get_sig_num(), *sig_it->second);
             delete(sig_it->second);
             (*(*counters_it)->sigs)[sig_it->first] = nullptr;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
