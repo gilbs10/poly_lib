@@ -445,15 +445,15 @@ void RectManagerParallel::redistribute_sigs(){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-//            if (status.w % 2 && status.k_pos == 0){
-//                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
-//                    bp.reverse(status.col %2);
-//                }
-//            }
+            if (status.w % 2 && status.k_pos == 0){
+                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
+                    bp.reverse(status.col %2);
+                }
+            }
             sig occupancy_num = bp.get_occupancy_num(s, t);
             omp_set_lock(&((*counters_locks)[occupancy_num]));
             (*counters_packed_sizes)[occupancy_num] += (PREENTRY_BITS
-                                                     +  bit_size_64(sig_it->first)
+                                                     +  bit_size_64(bp.get_sig_num())
                                                      +  sig_it->second->bit_size());
             (*counters_size)[occupancy_num] += 1;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
@@ -466,11 +466,11 @@ void RectManagerParallel::redistribute_sigs(){
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             bool use_rev = false;
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-//            if (status.w % 2 && status.k_pos == 0){
-//                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
-//                    bp.reverse(status.col %2);
-//                }
-//            }
+            if (status.w % 2 && status.k_pos == 0){
+                if (bp.get_sig_num() > bp.get_reverse_sig_num()){
+                    bp.reverse(status.col %2);
+                }
+            }
             sig occupancy_num = bp.get_occupancy_num(s, t);
             omp_set_lock(&((*counters_locks)[occupancy_num]));
             if((*temp_counters)[occupancy_num] == nullptr){

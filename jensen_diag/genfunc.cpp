@@ -157,7 +157,7 @@ void GenFunc::pack(bool repack_flag, int preentry_bits, int index_bits){
     if(!repack_flag || pgf){
         return;
     }
-    int bit_sum = 2*index_bits;
+    int bit_sum = index_bits;
     int element_bits[size()+1];
     int c = 0;
     for (int i = min_n; i < max_n; ++i)  {

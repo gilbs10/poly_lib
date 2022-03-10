@@ -51,14 +51,12 @@ bool SigDict::operator<(const SigDict &other) const {
 void SigDict::pack() {
     unsigned long long bit_sum = NUM_OF_SIGS_BITS; //Num of signatures
     for(auto &it: *sigs){
-        bit_sum += PREENTRY_BITS; // sinature length
-        bit_sum += bit_size_64(it.first); // sinature length
+        bit_sum += PREENTRY_BITS;
+        bit_sum += bit_size_64(it.first);
         bit_sum += it.second->bit_size();
     }
     psd = new PackedArray(bit_sum);
-    int pos = 0;
-    psd->insert(pos, size(), NUM_OF_SIGS_BITS);
-    pos += NUM_OF_SIGS_BITS;
+    int pos = psd->insert(0, size(), NUM_OF_SIGS_BITS);
     for(auto &it: *sigs){
         pos += psd->insert(pos, bit_size_64(it.first), PREENTRY_BITS);
         pos += psd->insert(pos, it.first, bit_size_64(it.first));
@@ -74,17 +72,22 @@ void SigDict::unpack() {
         return;
     }
     int num_of_sigs;
-    int pos = 0;
-    pos += psd->fetch(pos, &num_of_sigs, NUM_OF_SIGS_BITS);
+    int pos = psd->fetch(0, &num_of_sigs, NUM_OF_SIGS_BITS);
     int sig_len;
     sig sig_num;
-    GenFunc gf;
     sigs = new sig_map();
     for (int i = 0; i < num_of_sigs; ++i) {
         pos += psd->fetch(pos, &sig_len, PREENTRY_BITS);
         pos += psd->fetch(pos, &sig_num, sig_len);
-        (*sigs)[sig_num] = new GenFunc(*psd, pos);;
-        pos += (*sigs)[sig_num]->pgf->bit_sum;
+        if(sigs->find(sig_num) == sigs->end()){
+            (*sigs)[sig_num] = new GenFunc(*psd, pos);;
+            pos += (*sigs)[sig_num]->pgf->bit_sum;
+        } else{
+            GenFunc gf = GenFunc(*psd, pos);
+
+            pos += gf.pgf->bit_sum;
+            (*sigs)[sig_num]->add(gf, 0);
+        }
     }
     delete psd;
     psd = nullptr;
@@ -94,12 +97,12 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
     delete sigs;
     sigs = nullptr;
     psd = new PackedArray(bit_size);
-    packed_pos += psd->insert(0, num_of_elements, NUM_OF_SIGS_BITS);
+    packed_pos = psd->insert(0, num_of_elements, NUM_OF_SIGS_BITS);
 }
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
-    cout << sig_num << endl;
-    cout <<gf.pgf->bit_sum << " " << gf.pgf->bit_array[0] << endl;
+//    cout << sig_num << endl;
+//    cout <<gf.pgf->bit_sum << " " << gf.pgf->bit_array[0] << endl;
     packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
     packed_pos += psd->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
