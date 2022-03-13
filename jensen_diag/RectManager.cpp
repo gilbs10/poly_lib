@@ -444,13 +444,16 @@ void RectManagerParallel::redistribute_sigs(){
         omp_init_lock(&((*counters_locks)[i]));
     }
     cout << FORMAT_TITLE_VERBOSE("SUM SIZE");
+    cout << FORMAT_ATTR_VERBOSE("start_occ", s);
+    cout << FORMAT_ATTR_VERBOSE("end_occ", t);
     cout << endl;
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
+        cout << "u";
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-            if (status.w % 2 && status.k_pos == 0){
+            if (status.w % 2 && status.k_pos == 0 && USE_REVERSING){
                 if (bp.get_sig_num() > bp.get_reverse_sig_num()){
                     bp.reverse(status.col %2);
                 }
@@ -463,8 +466,10 @@ void RectManagerParallel::redistribute_sigs(){
             (*counters_size)[occupancy_num] += 1;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
+        cout << "p";
         (*counters_it)->pack();
     }
+    cout << endl;
 
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
@@ -478,7 +483,7 @@ void RectManagerParallel::redistribute_sigs(){
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             bool use_rev = false;
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
-            if (status.w % 2 && status.k_pos == 0){
+            if (status.w % 2 && status.k_pos == 0 && USE_REVERSING){
                 if (bp.get_sig_num() > bp.get_reverse_sig_num()){
                     bp.reverse(status.col %2);
                 }
