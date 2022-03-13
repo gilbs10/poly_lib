@@ -9,17 +9,14 @@ class GenFunc;
 #include "SigDict.h"
 #include "data_types.h"
 
-
-using namespace std;
-
+#ifndef GF_MOD_CONST
 typedef u128_addable gf_type; // Slightly faster than u128_full
 //typedef u128_full gf_type;
-//typedef u64_addable_mod gf_type;
+#else
+typedef u64_addable_mod gf_type;
+#endif
 
-
-const int PREENTRY_BITS=7;
-const int INDEX_BITS=6; // 6 For n<=63, 7 for higher. I wish 8 was needed.
-
+using namespace std;
 
 class GenFunc{
 private:

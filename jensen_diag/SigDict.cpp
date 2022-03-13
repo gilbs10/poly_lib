@@ -49,6 +49,9 @@ bool SigDict::operator<(const SigDict &other) const {
  * For each signature (sig_len[PREENTRY_BITS], sig[sig_len], PackedGF)
  * For PackedGF see genfunc.cpp */
 void SigDict::pack() {
+    if(!SD_USE_PACKING){
+        return;
+    }
     unsigned long long bit_sum = NUM_OF_SIGS_BITS; //Num of signatures
     for(auto &it: *sigs){
         bit_sum += PREENTRY_BITS;
@@ -68,7 +71,7 @@ void SigDict::pack() {
 }
 
 void SigDict::unpack() {
-    if(!psd){
+    if(!psd || !SD_USE_PACKING){
         return;
     }
     int num_of_sigs;

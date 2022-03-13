@@ -39,22 +39,27 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     cout << FORMAT_ATTR("Width", w);
     cout << FORMAT_ATTR("White mode", wm);
     cout << endl;
-//    RectManager* rm = new RectManager(w, n, bool(wm));
+#ifdef USE_PARALLEL
     RectManagerParallel* rm = new RectManagerParallel(w, n, bool(wm), num_of_threads);
+#else
+    RectManager* rm = new RectManager(w, n, bool(wm));
+#endif
     rm->run_rectangle();
     for (int j = w; j <= n; ++j) {
         if (rm->res->find(j) != rm->res->end()){
             c += (*rm->res)[j]->at(n);
             if(PRINT_RES_BY_COL){
                 for (int i = 1; i <= n; ++i) {
-                    cout << FORMAT_TITLE("RESULT WIDTH COL");
-                    cout << FORMAT_ATTR("Run_Size", n);
-                    cout << FORMAT_ATTR("Res_Size", i);
-                    cout << FORMAT_ATTR("Width", w);
-                    cout << FORMAT_ATTR("Column", j);
-                    cout << FORMAT_ATTR("White mode", wm);
-                    cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(i));
-                    cout << endl;
+                    if((*rm->res)[j]->at(i)){
+                        cout << FORMAT_TITLE("RESULT WIDTH COL");
+                        cout << FORMAT_ATTR("Run_Size", n);
+                        cout << FORMAT_ATTR("Res_Size", i);
+                        cout << FORMAT_ATTR("Width", w);
+                        cout << FORMAT_ATTR("Column", j);
+                        cout << FORMAT_ATTR("White mode", wm);
+                        cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(i));
+                        cout << endl;
+                    }
                 }
             }
             if(j > w){

@@ -10,16 +10,17 @@
 #include "robin_hood.h"
 #include "abseil-cpp/absl/container/flat_hash_map.h"
 
+
 //typedef robin_hood::unordered_map<sig, GenFunc*> sig_map;
 typedef absl::flat_hash_map<sig, GenFunc*> sig_map;
 //typedef unordered_map<sig, GenFunc*> sig_map;
 
-const int NUM_OF_SIGS_BITS = 32; //Should suffice, but verify
 
 class SigDict{
 public:
     sig_map* sigs;
     PackedArray* psd;
+    string packed_file;
     int packed_pos;
     SigDict();
     ~SigDict();

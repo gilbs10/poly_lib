@@ -68,6 +68,7 @@ ostream& operator<<(ostream& os, const u128_full& x){
     return os;
 }
 
+#ifdef GF_MOD_CONST
 u64_addable_mod::u64_addable_mod() : x(GF_MOD_CONST){
 }
 u64_addable_mod::u64_addable_mod(unsigned long long y) : x(y % GF_MOD_CONST){
@@ -101,3 +102,5 @@ ostream& operator<<(ostream& os, const u64_addable_mod& x){
     os << x.x;
     return os;
 }
+
+#endif
