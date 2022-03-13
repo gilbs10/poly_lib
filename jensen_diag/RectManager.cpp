@@ -492,6 +492,8 @@ void RectManagerParallel::redistribute_sigs(){
     }
     delete counters;
     delete counters_locks;
+    delete counters_size;
+    delete counters_packed_sizes;
     counters = temp_counters;
 }
 
