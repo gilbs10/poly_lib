@@ -383,6 +383,9 @@ void RectManagerParallel::run_rectangle(){
             cout << endl;
         }
         redistribute_sigs();
+        cout << FORMAT_TITLE_VERBOSE("END REDIST SIGS");
+        cout << endl;
+
         managers->clear();
         for(auto &counters_it: *counters){
             if(counters_it){
