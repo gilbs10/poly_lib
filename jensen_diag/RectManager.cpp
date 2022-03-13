@@ -451,6 +451,7 @@ void RectManagerParallel::redistribute_sigs(){
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         cout << "u" << flush;
         (*counters_it)->unpack();
+        cout << "e" << flush;
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
             if (status.w % 2 && status.k_pos == 0 && USE_REVERSING){
@@ -468,6 +469,7 @@ void RectManagerParallel::redistribute_sigs(){
         }
         cout << "p" << flush;
         (*counters_it)->pack();
+        cout << "e" << flush;
     }
     cout << endl;
 
