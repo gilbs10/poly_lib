@@ -420,6 +420,8 @@ bool RectManagerParallel::is_empty_counters(){
 
 
 void RectManagerParallel::redistribute_sigs(){
+    cout << FORMAT_TITLE_VERBOSE("REDIST SIGS");
+    cout << endl;
     int c= 0;
     sig occupancy_num;
     int s,t;
@@ -438,7 +440,6 @@ void RectManagerParallel::redistribute_sigs(){
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
-
 #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
