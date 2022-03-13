@@ -20,7 +20,8 @@ class SigDict{
 public:
     sig_map* sigs;
     PackedArray* psd;
-    string packed_file;
+    string packed_file_path;
+    ofstream packed_file;
     int packed_pos;
     SigDict();
     ~SigDict();
@@ -31,6 +32,7 @@ public:
     unsigned long long size() const;
     void pack();
     void unpack();
+    void pack_to_file();
     bool operator < (const SigDict& other) const;
 };
 

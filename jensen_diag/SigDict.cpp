@@ -104,9 +104,11 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
 }
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
-//    cout << sig_num << endl;
-//    cout <<gf.pgf->bit_sum << " " << gf.pgf->bit_array[0] << endl;
     packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
     packed_pos += psd->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
 }
+void SigDict::pack_to_file() {
+
+}
+
