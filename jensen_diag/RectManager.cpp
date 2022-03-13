@@ -449,7 +449,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << endl;
 //#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
-        cout << "u";
+        cout << "u" << flush;
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
@@ -466,7 +466,7 @@ void RectManagerParallel::redistribute_sigs(){
             (*counters_size)[occupancy_num] += 1;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
-        cout << "p";
+        cout << "p" << flush;
         (*counters_it)->pack();
     }
     cout << endl;
