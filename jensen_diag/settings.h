@@ -39,7 +39,7 @@ const bool SD_USE_PACKING = true;
 /*******************************************************
  *                    PackedArray                      *
  *******************************************************/
-const int PREENTRY_BITS=7;
+const int PREENTRY_BITS=8;
 const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 const int NUM_OF_SIGS_BITS = 64;
 
