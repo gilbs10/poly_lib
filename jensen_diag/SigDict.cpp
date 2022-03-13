@@ -108,7 +108,7 @@ void SigDict::append(sig sig_num, GenFunc &gf) {
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
     packed_pos += psd->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
 }
-void SigDict::pack_to_file() {
-
-}
+//void SigDict::pack_to_file() {
+//
+//}
 
