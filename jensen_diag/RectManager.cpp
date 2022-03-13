@@ -443,6 +443,8 @@ void RectManagerParallel::redistribute_sigs(){
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
+    cout << FORMAT_TITLE_VERBOSE("SUM SIZE");
+    cout << endl;
 #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
@@ -463,6 +465,11 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
+
+    cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
+    cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
+    cout << FORMAT_ATTR_VERBOSE("max_size", *max_element(counters_size->begin(), counters_size->end()));
+    cout << endl;
 #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
