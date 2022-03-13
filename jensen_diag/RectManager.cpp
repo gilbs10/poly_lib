@@ -447,7 +447,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("start_occ", s);
     cout << FORMAT_ATTR_VERBOSE("end_occ", t);
     cout << endl;
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+//#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         cout << "u";
         (*counters_it)->unpack();
