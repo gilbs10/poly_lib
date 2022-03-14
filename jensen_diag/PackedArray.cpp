@@ -39,13 +39,14 @@ unsigned long long PackedArray::get(unsigned long long pos, int x_bits) const {
 
 
 int PackedArray::insert(unsigned long long pos, u128_addable x, int x_bits){
+    int x_bits_old = x_bits;
     if(x.hi){
         insert(pos, x.hi, x_bits-64);
         pos += x_bits - 64;
         x_bits = 64;
     }
     insert(pos, x.lo, x_bits);
-    return x_bits;
+    return x_bits_old;
 }
 
 int PackedArray::insert(unsigned long long pos, u64_addable_mod x, int x_bits){
@@ -76,6 +77,7 @@ int PackedArray::insert(unsigned long long pos, PackedArray& pa, int x_bits){
 
 
 int PackedArray::fetch(unsigned long long pos, u128_addable* x ,int x_bits) const{
+    int x_bits_old = x_bits;
     x->hi = 0;
     if(x_bits > 64){
         x->hi = get(pos, x_bits-64);
@@ -83,7 +85,7 @@ int PackedArray::fetch(unsigned long long pos, u128_addable* x ,int x_bits) cons
         x_bits=64;
     }
     x->lo = get(pos, x_bits);
-    return x_bits;
+    return x_bits_old;
 }
 
 int PackedArray::fetch(unsigned long long pos, int* x, int x_bits) const{
