@@ -488,16 +488,16 @@ void RectManagerParallel::redistribute_sigs(){
             omp_set_lock(&((*counters_locks)[occupancy_num]));
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
-//                if(SD_USE_PACKING){
-//                    (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
-//                }
+                if(SD_USE_PACKING){
+                    (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
+                }
             }
-//            if(SD_USE_PACKING){
-//                (*temp_counters)[occupancy_num]->append(bp.get_sig_num(), *sig_it->second);
-//            }
-//            else{
+            if(SD_USE_PACKING){
+                (*temp_counters)[occupancy_num]->append(bp.get_sig_num(), *sig_it->second);
+            }
+            else{
                 (*temp_counters)[occupancy_num]->add(bp.get_sig_num(), *sig_it->second, 0);
-//            }
+            }
             delete(sig_it->second);
             (*(*counters_it)->sigs)[sig_it->first] = nullptr;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
