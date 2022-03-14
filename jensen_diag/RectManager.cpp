@@ -447,11 +447,9 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("start_occ", s);
     cout << FORMAT_ATTR_VERBOSE("end_occ", t);
     cout << endl;
-//#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
-        cout << "u" << flush;
         (*counters_it)->unpack();
-        cout << "e" << flush;
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
             BoundaryPattern bp = BoundaryPattern(sig_it->first, status.pat_length);
             if (status.w % 2 && status.k_pos == 0 && USE_REVERSING){
@@ -467,12 +465,8 @@ void RectManagerParallel::redistribute_sigs(){
             (*counters_size)[occupancy_num] += 1;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
-        cout << "p" << flush;
         (*counters_it)->pack();
-        cout << "e" << flush;
     }
-    cout << endl;
-
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
     cout << FORMAT_ATTR_VERBOSE("max_size", *max_element(counters_size->begin(), counters_size->end()));
