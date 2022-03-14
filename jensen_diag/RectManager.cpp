@@ -396,7 +396,7 @@ void RectManagerParallel::run_rectangle(){
         if(FIXED_NUM_OF_THREADS){
             omp_set_num_threads(num_of_threads);
         }
-//        #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
+        #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
         for (int i = 0; i < managers->size(); ++i) {
             (*managers)[i]->run_rectangle();
         }
@@ -447,7 +447,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("start_occ", s);
     cout << FORMAT_ATTR_VERBOSE("end_occ", t);
     cout << endl;
-//#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
@@ -473,7 +473,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));
     cout << endl;
-//#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
