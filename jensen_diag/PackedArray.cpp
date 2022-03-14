@@ -11,7 +11,7 @@ PackedArray::PackedArray(unsigned long long bit_sum) : bit_sum(bit_sum) {
     bit_array = new unsigned long long[(bit_sum-1) / 64 + 1]();
 }
 
-int PackedArray::insert(int pos, unsigned long long x, int x_bits){
+int PackedArray::insert(unsigned long long pos, unsigned long long x, int x_bits){
     int slack = 64 - (pos % 64);
     int i = pos / 64;
     if(x_bits > slack){
@@ -23,7 +23,7 @@ int PackedArray::insert(int pos, unsigned long long x, int x_bits){
     return x_bits;
 }
 
-unsigned long long PackedArray::get(int pos, int x_bits) const {
+unsigned long long PackedArray::get(unsigned long long pos, int x_bits) const {
     int slack = 64 - (pos % 64);
     int i = pos / 64;
     unsigned long long res = 0;
@@ -38,7 +38,7 @@ unsigned long long PackedArray::get(int pos, int x_bits) const {
 }
 
 
-int PackedArray::insert(int pos, u128_addable x, int x_bits){
+int PackedArray::insert(unsigned long long pos, u128_addable x, int x_bits){
     if(x.hi){
         insert(pos, x.hi, x_bits-64);
         pos += x_bits - 64;
@@ -48,17 +48,17 @@ int PackedArray::insert(int pos, u128_addable x, int x_bits){
     return x_bits;
 }
 
-int PackedArray::insert(int pos, u64_addable_mod x, int x_bits){
+int PackedArray::insert(unsigned long long pos, u64_addable_mod x, int x_bits){
     insert(pos, x.x, x_bits);
     return x_bits;
 }
 
-int PackedArray::insert(int pos, u128_full x, int x_bits){
+int PackedArray::insert(unsigned long long pos, u128_full x, int x_bits){
     insert(pos, x.x, x_bits);
     return x_bits;
 }
 
-int PackedArray::insert(int pos, PackedArray& pa, int x_bits){
+int PackedArray::insert(unsigned long long pos, PackedArray& pa, int x_bits){
     for (int i = 0; i < pa.array_length() - 1; ++i) {
         pos += insert(pos, pa.bit_array[i], 64);
     }
@@ -75,7 +75,7 @@ int PackedArray::insert(int pos, PackedArray& pa, int x_bits){
 
 
 
-int PackedArray::fetch(int pos, u128_addable* x ,int x_bits) const{
+int PackedArray::fetch(unsigned long long pos, u128_addable* x ,int x_bits) const{
     x->hi = 0;
     if(x_bits > 64){
         x->hi = get(pos, x_bits-64);
@@ -86,27 +86,27 @@ int PackedArray::fetch(int pos, u128_addable* x ,int x_bits) const{
     return x_bits;
 }
 
-int PackedArray::fetch(int pos, int* x, int x_bits) const{
+int PackedArray::fetch(unsigned long long pos, int* x, int x_bits) const{
     *x = get(pos, x_bits);
     return x_bits;
 }
 
-int PackedArray::fetch(int pos, unsigned long long* x, int x_bits) const{
+int PackedArray::fetch(unsigned long long pos, unsigned long long* x, int x_bits) const{
     *x = get(pos, x_bits);
     return x_bits;
 }
 
-int PackedArray::fetch(int pos, u64_addable_mod* x, int x_bits) const{
+int PackedArray::fetch(unsigned long long pos, u64_addable_mod* x, int x_bits) const{
     x->x = get(pos, x_bits);
     return x_bits;
 }
 
-int PackedArray::fetch(int pos, u128_full* x, int x_bits) const{
+int PackedArray::fetch(unsigned long long pos, u128_full* x, int x_bits) const{
     x->x = get(pos, x_bits);
     return x_bits;
 }
 
-int PackedArray::array_length() {
+unsigned long long PackedArray::array_length() {
     return (bit_sum-1) / 64 + 1;
 }
 
@@ -114,7 +114,7 @@ int PackedArray::array_length() {
 PackedArray::PackedArray(const PackedArray &other) {
     bit_sum = other.bit_sum;
     bit_array = new unsigned long long[array_length()];
-    for (int i = 0; i < array_length(); ++i) {
+    for (unsigned long long i = 0; i < array_length(); ++i) {
         bit_array[i] = other.bit_array[i];
     }
 }
@@ -126,7 +126,7 @@ PackedArray::~PackedArray(){
 PackedArray &PackedArray::operator=(const PackedArray &other) {
     bit_sum = other.bit_sum;
     bit_array = new unsigned long long[array_length()];
-    for (int i = 0; i < array_length(); ++i) {
+    for (unsigned long long i = 0; i < array_length(); ++i) {
         bit_array[i] = other.bit_array[i];
     }
     return *this;

@@ -437,8 +437,8 @@ void RectManagerParallel::redistribute_sigs(){
     }
 
     vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
-    vector<int>* counters_packed_sizes = new vector<int>(1<<(t-s), NUM_OF_SIGS_BITS);
-    vector<int>* counters_size = new vector<int>(1<<(t-s), 0);
+    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(1<<(t-s), NUM_OF_SIGS_BITS);
+    vector<unsigned long long>* counters_size = new vector<unsigned long long>(1<<(t-s), 0);
     vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
