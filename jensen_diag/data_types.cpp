@@ -36,10 +36,32 @@ int u128_addable::bit_size(){
     return bit_size_64(lo);
 }
 
-
-
 ostream& operator<<(ostream& os, const u128_addable& x){
     os << "(" << x.hi << ", " << x.lo << ")";
+    return os;
+}
+
+u192_addable::u192_addable() : hi(0), lo(0) {}
+u192_addable::u192_addable(unsigned long long y) : hi(0), lo(y) {}
+void u192_addable::add(const u192_addable &x) {
+    hi += __builtin_add_overflow(lo,x.lo,&lo);
+    hi += x.hi;
+}
+u192_addable &u192_addable::operator+=(const u192_addable &y) {
+    this->add(y);
+    return *this;
+}
+u192_addable::operator bool() {
+    return lo || hi;
+}
+int u192_addable::bit_size() {
+    if(hi){
+        return hi.bit_size() + 64;
+    }
+    return bit_size_64(lo);
+}
+ostream& operator<<(ostream& os, const u192_addable& x){
+    os << "(" << x.hi.hi << ", " << x.hi.lo << ", " << x.lo << ")";
     return os;
 }
 

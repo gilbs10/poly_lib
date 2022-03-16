@@ -4,8 +4,8 @@
 
 #ifndef JENSEN_DIAG_SETTINGS_H
 #define JENSEN_DIAG_SETTINGS_H
-#include <iomanip>
-#include <chrono>
+
+#include <filesystem>
 
 using namespace std;
 
@@ -34,14 +34,18 @@ const bool USE_REVERSING = true;
  *                      SigDict                        *
  *******************************************************/
 const bool SD_USE_PACKING = true;
-
+#define SD_PACK_TO_FILE
 
 /*******************************************************
  *                    PackedArray                      *
  *******************************************************/
 const int PREENTRY_BITS=8;
 const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
-const int NUM_OF_SIGS_BITS = 64;
+const int NUM_OF_SIGS_BITS = 32;
+const filesystem::path PAS_SWAP_PATH = "../packed_array_swap/";
+const string PAS_SWAP_EXT = "paf";
+const int PAS_BUFFER_SIZE = 2;
+
 
 
 /*******************************************************
@@ -50,22 +54,9 @@ const int NUM_OF_SIGS_BITS = 64;
 #define USE_PARALLEL
 const bool FIXED_NUM_OF_THREADS = true;
 
-
 /*******************************************************
  *                      Printing                       *
  *******************************************************/
 const bool PRINT_RES_BY_COL = true;
-string get_time();
-#define ALIGN_TAB "\t"
-#define FORMAT_ATTR(a,b) " " << (a) <<": "<< (b) << ALIGN_TAB
-#define FORMAT_TITLE(a) get_time() << " <" << (a) << ">" << ALIGN_TAB
-#define LOG_VERBOSE
-#ifdef LOG_VERBOSE
-#define FORMAT_ATTR_VERBOSE(a,b) " " << (a) <<": "<< (b) << ALIGN_TAB
-#define FORMAT_TITLE_VERBOSE(a) get_time() << " <" << (a) << ">" << ALIGN_TAB
-#else
-#define FORMAT_ATTR_VERBOSE(a,b) ""
-#define FORMAT_TITLE_VERBOSE(a) ""
-#endif
 
 #endif //JENSEN_DIAG_SETTINGS_H

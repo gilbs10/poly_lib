@@ -9,19 +9,23 @@
 #include "genfunc.h"
 #include "robin_hood.h"
 #include "abseil-cpp/absl/container/flat_hash_map.h"
+#include <fstream>
 
+using namespace std;
 
 //typedef robin_hood::unordered_map<sig, GenFunc*> sig_map;
 typedef absl::flat_hash_map<sig, GenFunc*> sig_map;
 //typedef unordered_map<sig, GenFunc*> sig_map;
 
-
 class SigDict{
 public:
     sig_map* sigs;
+#ifdef SD_PACK_TO_FILE
+    PackedArraySwappable* psd;
+    unsigned long long num_of_elements;
+#else
     PackedArray* psd;
-//    string packed_file_path;
-//    ofstream packed_file;
+#endif
     int packed_pos;
     SigDict();
     ~SigDict();
@@ -32,7 +36,6 @@ public:
     unsigned long long size() const;
     void pack();
     void unpack();
-//    void pack_to_file();
     bool operator < (const SigDict& other) const;
 };
 

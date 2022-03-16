@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <iostream>
 #include "settings.h"
+#include "utils.h"
 
 //
 // Created by gilbe on 13.2.2022.
@@ -435,11 +436,13 @@ void RectManagerParallel::redistribute_sigs(){
         s = status.pat_length/2;
         t = status.pat_length;
     }
+    long long v_len = 1<<(t-s);
+//    long long v_len = pow(5,t-s);
 
-    vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
-    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(1<<(t-s), NUM_OF_SIGS_BITS);
-    vector<unsigned long long>* counters_size = new vector<unsigned long long>(1<<(t-s), 0);
-    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
+    vector<SigDict*>* temp_counters = new vector<SigDict*>(v_len, nullptr);
+    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(v_len, NUM_OF_SIGS_BITS);
+    vector<unsigned long long>* counters_size = new vector<unsigned long long>(v_len, 0);
+    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(v_len);
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
@@ -467,8 +470,10 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
+    cout << endl;
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
+    cout << FORMAT_ATTR_VERBOSE("max_size_index", max_element(counters_size->begin(), counters_size->end())-counters_size->begin());
     cout << FORMAT_ATTR_VERBOSE("max_size", *max_element(counters_size->begin(), counters_size->end()));
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));

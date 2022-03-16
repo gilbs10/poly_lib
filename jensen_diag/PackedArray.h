@@ -6,6 +6,12 @@
 #define JENSEN_DIAG_PACKEDARRAY_H
 
 #include "data_types.h"
+#include <fstream>
+#include <filesystem>
+#include "utils.h"
+#include "settings.h"
+
+using namespace std;
 
 class PackedArray {
 public:
@@ -17,14 +23,16 @@ public:
     PackedArray(unsigned long long bitsize);
     PackedArray(const PackedArray &other);
     ~PackedArray();
-    int insert(unsigned long long pos, unsigned long long x, int x_bits);
+    virtual int insert(unsigned long long pos, unsigned long long x, int x_bits);
     int insert(unsigned long long pos, u128_addable x, int x_bits);
+    int insert(unsigned long long pos, u192_addable x, int x_bits);
     int insert(unsigned long long pos, u64_addable_mod x, int x_bits);
     int insert(unsigned long long pos, u128_full x, int x_bits);
     int insert(unsigned long long pos, PackedArray& x, int x_bits);
     int fetch(unsigned long long pos, int* x ,int x_bits) const;
     int fetch(unsigned long long pos, unsigned long long* x ,int x_bits) const;
     int fetch(unsigned long long pos, u128_addable* x ,int x_bits) const;
+    int fetch(unsigned long long pos, u192_addable* x ,int x_bits) const;
     int fetch(unsigned long long pos, u64_addable_mod* x, int x_bits) const;
     int fetch(unsigned long long pos, u128_full* x, int x_bits) const;
     unsigned long long get(unsigned long long pos, int x_bits) const;
@@ -32,7 +40,22 @@ public:
     PackedArray &operator=(const PackedArray &other);
 };
 
-
+class PackedArraySwappable : public PackedArray {
+public:
+    unsigned long long bit_buffer[PAS_BUFFER_SIZE];
+    int buffer_pos;
+    fstream bit_file;
+    filesystem::path bit_file_name;
+    PackedArraySwappable(unsigned long long bitsize);
+    ~PackedArraySwappable();
+    void open_file();
+    void close_file();
+    void swap_all();
+    void swap_buffer();
+    void unswap();
+    int buffer_length();
+    int insert(unsigned long long pos, unsigned long long x, int x_bits) override;
+};
 
 
 #endif //JENSEN_DIAG_PACKEDARRAY_H
