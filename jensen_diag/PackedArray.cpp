@@ -163,6 +163,7 @@ PackedArray &PackedArray::operator=(const PackedArray &other) {
 PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize) {
     bit_sum = bitsize;
     buffer_pos = 0;
+    persistant = false;
     for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {
         bit_buffer[i] = 0;
     }
@@ -198,7 +199,7 @@ void PackedArraySwappable::open_file() {
 }
 
 void PackedArraySwappable::close_file() {
-    if(!bit_file.is_open()){
+    if(!bit_file.is_open() || persistant){
         return;
     }
 //    swap_buffer();

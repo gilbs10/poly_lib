@@ -35,6 +35,8 @@ const bool USE_REVERSING = true;
  *******************************************************/
 const bool SD_USE_PACKING = true;
 #define SD_PACK_TO_FILE
+const int SD_NUM_PERSISTANT_FILES = 512;
+
 
 /*******************************************************
  *                    PackedArray                      *

@@ -470,7 +470,14 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
-    cout << endl;
+    unsigned long long persistant_lim;
+    if(counters_size->size() < SD_NUM_PERSISTANT_FILES){
+        persistant_lim = -1;
+    } else{
+        vector<unsigned long long> temp_counters_size = *counters_size;
+        nth_element(temp_counters_size.begin(), temp_counters_size.begin() + SD_NUM_PERSISTANT_FILES, temp_counters_size.end());
+        persistant_lim = temp_counters_size[SD_NUM_PERSISTANT_FILES];
+    }
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
     cout << FORMAT_ATTR_VERBOSE("max_size_index", max_element(counters_size->begin(), counters_size->end())-counters_size->begin());
@@ -478,7 +485,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));
     cout << endl;
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, persistant_lim)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
@@ -495,6 +502,9 @@ void RectManagerParallel::redistribute_sigs(){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
                     (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
+                    if((*counters_size)[occupancy_num] > persistant_lim){
+                        (*temp_counters)[occupancy_num]->psd->persistant = true;
+                    }
                 }
             }
             if(SD_USE_PACKING){

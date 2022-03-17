@@ -46,6 +46,7 @@ public:
     int buffer_pos;
     fstream bit_file;
     filesystem::path bit_file_name;
+    bool persistant;
     PackedArraySwappable(unsigned long long bitsize);
     ~PackedArraySwappable();
     void create_file();
