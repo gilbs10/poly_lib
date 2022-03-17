@@ -475,7 +475,7 @@ void RectManagerParallel::redistribute_sigs(){
         persistant_lim = -1;
     } else{
         vector<unsigned long long> temp_counters_size = *counters_size;
-        nth_element(temp_counters_size.begin(), temp_counters_size.begin() + SD_NUM_PERSISTANT_FILES, temp_counters_size.end());
+        nth_element(temp_counters_size.begin(), temp_counters_size.begin() + SD_NUM_PERSISTANT_FILES, temp_counters_size.end(), std::greater{});
         persistant_lim = temp_counters_size[SD_NUM_PERSISTANT_FILES];
     }
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
@@ -502,9 +502,11 @@ void RectManagerParallel::redistribute_sigs(){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
                     (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
+#ifdef SD_PACK_TO_FILE
                     if((*counters_size)[occupancy_num] > persistant_lim){
                         (*temp_counters)[occupancy_num]->psd->persistant = true;
                     }
+#endif
                 }
             }
             if(SD_USE_PACKING){
