@@ -152,8 +152,9 @@ int main(){
     }
 //    PackedArraySwappable pas(192);
 //    for (int i = 1; i < 1+24; ++i) {
+//        pas.open_file();
 //        pas.insert(0, i, 8);
-//
+//        pas.close_file();
 //    }
 //    pas.unswap();
 //    pas.swap_all();

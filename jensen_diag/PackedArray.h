@@ -48,6 +48,8 @@ public:
     filesystem::path bit_file_name;
     PackedArraySwappable(unsigned long long bitsize);
     ~PackedArraySwappable();
+    void create_file();
+    void delete_file();
     void open_file();
     void close_file();
     void swap_all();

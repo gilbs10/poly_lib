@@ -166,22 +166,22 @@ PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize) {
     for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {
         bit_buffer[i] = 0;
     }
-    open_file();
+    create_file();
 }
 
 PackedArraySwappable::~PackedArraySwappable() {
-    close_file();
+    delete_file();
 }
 
-void PackedArraySwappable::open_file() {
-    if(bit_file.is_open()){
+void PackedArraySwappable::create_file() {
+    if(!bit_file_name.empty()){
        return;
     }
     bit_file_name = get_available_fname(PAS_SWAP_PATH, PAS_SWAP_EXT);
-    bit_file.open(bit_file_name ,ios::in | ios::out | ios::app | ios::binary);
+    open_file();
 }
 
-void PackedArraySwappable::close_file() {
+void PackedArraySwappable::delete_file() {
     if(!bit_file.is_open()){
         return;
     }
@@ -190,24 +190,43 @@ void PackedArraySwappable::close_file() {
     bit_file_name = "";
 }
 
+void PackedArraySwappable::open_file() {
+    if(bit_file.is_open()){
+        return;
+    }
+    bit_file.open(bit_file_name ,ios::in | ios::out | ios::app | ios::binary);
+}
+
+void PackedArraySwappable::close_file() {
+    if(!bit_file.is_open()){
+        return;
+    }
+//    swap_buffer();
+    bit_file.close();
+}
+
 
 void PackedArraySwappable::swap_all() {
-    open_file();
+    create_file();
     bit_file.write(reinterpret_cast<char*>(bit_array), array_length()*sizeof(unsigned long long));
     delete bit_array;
     bit_array = nullptr;
 }
 
 void PackedArraySwappable::unswap() {
+    open_file();
     swap_buffer();
     delete bit_array;
     bit_array = new unsigned long long[array_length()];
     bit_file.seekg(0);
     bit_file.read(reinterpret_cast<char*>(bit_array), array_length()*sizeof(unsigned long long));
-    close_file();
+    delete_file();
 }
 
 void PackedArraySwappable::swap_buffer() {
+    if(!buffer_pos){
+        return;
+    }
     bit_file.write(reinterpret_cast<char*>(bit_buffer), buffer_length()*sizeof(unsigned long long));
     bit_file.flush();
     for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {

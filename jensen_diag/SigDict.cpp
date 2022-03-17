@@ -76,6 +76,9 @@ void SigDict::pack() {
         pos += ((PackedArray*)psd)->insert(pos, *it.second->pgf, it.second->pgf->bit_sum);
         delete it.second;
     }
+#ifdef SD_PACK_TO_FILE
+    psd->close_file();
+#endif
     delete sigs;
     sigs = nullptr;
 }
@@ -113,16 +116,26 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
     delete sigs;
     sigs = nullptr;
 #ifdef SD_PACK_TO_FILE
-        psd = new PackedArraySwappable(bit_size);
-        this->num_of_elements = num_of_elements;
+    psd = new PackedArraySwappable(bit_size);
+    this->num_of_elements = num_of_elements;
 #else
         psd = new PackedArray(bit_size);
 #endif
     packed_pos = psd->insert(0, num_of_elements, NUM_OF_SIGS_BITS);
+#ifdef SD_PACK_TO_FILE
+    psd->close_file();
+#endif
+
 }
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
+#ifdef SD_PACK_TO_FILE
+    psd->open_file();
+#endif
     packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
     packed_pos += ((PackedArray*)psd)->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
+#ifdef SD_PACK_TO_FILE
+    psd->close_file();
+#endif
 }
