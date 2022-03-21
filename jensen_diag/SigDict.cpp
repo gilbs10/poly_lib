@@ -8,7 +8,9 @@
 SigDict::SigDict(){
     sigs = new sig_map();
     psd = nullptr;
+#ifdef SD_PACK_TO_FILE
     persistant = false;
+#endif
 }
 
 SigDict::~SigDict(){

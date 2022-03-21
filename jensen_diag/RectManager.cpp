@@ -491,9 +491,11 @@ void RectManagerParallel::redistribute_sigs(){
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
+#ifdef SD_PACK_TO_FILE
                     if((*counters_packed_sizes)[occupancy_num] > persistant_size_threshold){
                         (*temp_counters)[occupancy_num]->persistant = true;
                     }
+#endif
                     (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
                 }
             }
