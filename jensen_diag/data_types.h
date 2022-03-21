@@ -30,20 +30,6 @@ public:
 
 ostream& operator<<(ostream& os, const u128_addable& x);
 
-class u192_addable{
-public:
-    u128_addable hi;
-    unsigned long long lo;
-    u192_addable();
-    u192_addable(unsigned long long y);
-    void add(const u192_addable &x);
-    u192_addable &operator+=(const u192_addable &y);
-    explicit operator bool ();
-    int bit_size();
-};
-
-ostream& operator<<(ostream& os, const u192_addable& x);
-
 class u128_full{
     /* A very simple 128 bit integer using two long long which supports only addition.*/
 public:
