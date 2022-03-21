@@ -467,13 +467,15 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
+    unsigned long long persistant_size_threshold = accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0);
+    persistant_size_threshold *= SD_PERSISTANT_THRESHOLD;
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
     cout << FORMAT_ATTR_VERBOSE("max_size", *max_element(counters_size->begin(), counters_size->end()));
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));
     cout << endl;
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout, persistant_size_threshold)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
@@ -489,6 +491,9 @@ void RectManagerParallel::redistribute_sigs(){
             if((*temp_counters)[occupancy_num] == nullptr){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
+                    if((*counters_packed_sizes)[occupancy_num] > persistant_size_threshold){
+                        (*temp_counters)[occupancy_num]->persistant = true;
+                    }
                     (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
                 }
             }

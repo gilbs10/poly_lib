@@ -8,6 +8,7 @@
 SigDict::SigDict(){
     sigs = new sig_map();
     psd = nullptr;
+    persistant = false;
 }
 
 SigDict::~SigDict(){
@@ -64,7 +65,7 @@ void SigDict::pack() {
         bit_sum += it.second->bit_size();
     }
 #ifdef SD_PACK_TO_FILE
-    psd = new PackedArraySwappable(bit_sum);
+    psd = new PackedArraySwappable(bit_sum, persistant);
 #else
     psd = new PackedArray(bit_sum);
 #endif
@@ -113,7 +114,7 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
     delete sigs;
     sigs = nullptr;
 #ifdef SD_PACK_TO_FILE
-        psd = new PackedArraySwappable(bit_size);
+        psd = new PackedArraySwappable(bit_size, persistant);
         this->num_of_elements = num_of_elements;
 #else
         psd = new PackedArray(bit_size);

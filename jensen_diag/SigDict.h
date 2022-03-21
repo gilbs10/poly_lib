@@ -23,6 +23,7 @@ public:
 #ifdef SD_PACK_TO_FILE
     PackedArraySwappable* psd;
     unsigned long long num_of_elements;
+    bool persistant;
 #else
     PackedArray* psd;
 #endif

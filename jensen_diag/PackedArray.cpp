@@ -160,7 +160,7 @@ PackedArray &PackedArray::operator=(const PackedArray &other) {
     return *this;
 }
 
-PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize) {
+PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize, bool persistant) : persistant(persistant) {
     bit_sum = bitsize;
     buffer_pos = 0;
     for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {
@@ -182,6 +182,7 @@ void PackedArraySwappable::create_file() {
 }
 
 void PackedArraySwappable::delete_file() {
+    bit_file.close();
     filesystem::remove(bit_file_name);
     bit_file_name = "";
 }
@@ -194,7 +195,7 @@ void PackedArraySwappable::open_file() {
 }
 
 void PackedArraySwappable::close_file() {
-    if(!bit_file.is_open()){
+    if(!bit_file.is_open() || persistant){
         return;
     }
     bit_file.close();
