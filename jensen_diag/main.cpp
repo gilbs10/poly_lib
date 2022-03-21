@@ -5,7 +5,6 @@
 #include "genfunc.h"
 #include "RectManager.h"
 #include "settings.h"
-#include "utils.h"
 #include <omp.h>
 
 using namespace std;
@@ -14,6 +13,13 @@ long long sigs = 0;
 int global_n; //Allows us to save presious memory in each GenFunc.
 /*Count the number of polyominoes using transfer matrix algorithm on the diagonal.
  * The code should be highly optimize, this sometime will be instead of readability and making the generic and useful*/
+
+string get_time(){
+auto timenow =
+        chrono::system_clock::to_time_t(chrono::system_clock::now());
+std::string t( ctime( &timenow ) );
+return t.substr( 0, t.length() -1  ) + " ";
+}
 
 gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     gf_type c = 0;
@@ -150,17 +156,10 @@ int main(){
     for (int i = 0; i < cases; ++i) {
         get_input_and_run();
     }
-//    PackedArraySwappable pas(192);
-//    for (int i = 1; i < 1+24; ++i) {
-//        pas.open_file();
-//        pas.insert(0, i, 8);
-//        pas.close_file();
-//    }
-//    pas.unswap();
-//    pas.swap_all();
-//    pas.unswap();
-//    for (int i = 0; i < 24; ++i) {
-//        cout << pas.get(i*8, 8) << endl;
-//    }
-//    return 0;
+//    SigDict sd();
+//    sig sig_num = 6;
+//    GenFunc gf();
+//    gf.at
+
+    return 0;
 }

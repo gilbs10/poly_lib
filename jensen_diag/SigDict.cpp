@@ -3,7 +3,6 @@
 //
 
 #include "SigDict.h"
-#include "utils.h"
 
 SigDict::SigDict(){
     sigs = new sig_map();
@@ -39,11 +38,7 @@ unsigned long long SigDict::size() const{
     if(sigs){
         return sigs->size();
     }
-#ifdef SD_PACK_TO_FILE
-    return num_of_elements;
-#else
     return psd->get(0, NUM_OF_SIGS_BITS);
-#endif
 }
 
 bool SigDict::operator<(const SigDict &other) const {
@@ -63,22 +58,14 @@ void SigDict::pack() {
         bit_sum += bit_size_64(it.first);
         bit_sum += it.second->bit_size();
     }
-#ifdef SD_PACK_TO_FILE
-    psd = new PackedArraySwappable(bit_sum);
-#else
     psd = new PackedArray(bit_sum);
-#endif
-
     int pos = psd->insert(0, size(), NUM_OF_SIGS_BITS);
     for(auto &it: *sigs){
         pos += psd->insert(pos, bit_size_64(it.first), PREENTRY_BITS);
         pos += psd->insert(pos, it.first, bit_size_64(it.first));
-        pos += ((PackedArray*)psd)->insert(pos, *it.second->pgf, it.second->pgf->bit_sum);
+        pos += psd->insert(pos, *it.second->pgf, it.second->pgf->bit_sum);
         delete it.second;
     }
-#ifdef SD_PACK_TO_FILE
-    psd->close_file();
-#endif
     delete sigs;
     sigs = nullptr;
 }
@@ -87,9 +74,6 @@ void SigDict::unpack() {
     if(!psd || !SD_USE_PACKING){
         return;
     }
-#ifdef SD_PACK_TO_FILE
-        psd->unswap();
-#endif
     int num_of_sigs;
     int pos = psd->fetch(0, &num_of_sigs, NUM_OF_SIGS_BITS);
     int sig_len;
@@ -115,27 +99,16 @@ void SigDict::unpack() {
 void SigDict::allocate(int bit_size, int num_of_elements) {
     delete sigs;
     sigs = nullptr;
-#ifdef SD_PACK_TO_FILE
-    psd = new PackedArraySwappable(bit_size);
-    this->num_of_elements = num_of_elements;
-#else
-        psd = new PackedArray(bit_size);
-#endif
+    psd = new PackedArray(bit_size);
     packed_pos = psd->insert(0, num_of_elements, NUM_OF_SIGS_BITS);
-#ifdef SD_PACK_TO_FILE
-    psd->close_file();
-#endif
-
 }
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
-#ifdef SD_PACK_TO_FILE
-    psd->open_file();
-#endif
     packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
-    packed_pos += ((PackedArray*)psd)->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
-#ifdef SD_PACK_TO_FILE
-    psd->close_file();
-#endif
+    packed_pos += psd->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
 }
+//void SigDict::pack_to_file() {
+//
+//}
+

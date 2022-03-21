@@ -7,7 +7,6 @@
 #include <algorithm>
 #include <iostream>
 #include "settings.h"
-#include "utils.h"
 
 //
 // Created by gilbe on 13.2.2022.
@@ -436,13 +435,11 @@ void RectManagerParallel::redistribute_sigs(){
         s = status.pat_length/2;
         t = status.pat_length;
     }
-    long long v_len = 1<<(t-s);
-//    long long v_len = pow(5,t-s);
 
-    vector<SigDict*>* temp_counters = new vector<SigDict*>(v_len, nullptr);
-    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(v_len, NUM_OF_SIGS_BITS);
-    vector<unsigned long long>* counters_size = new vector<unsigned long long>(v_len, 0);
-    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(v_len);
+    vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
+    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(1<<(t-s), NUM_OF_SIGS_BITS);
+    vector<unsigned long long>* counters_size = new vector<unsigned long long>(1<<(t-s), 0);
+    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
@@ -470,22 +467,13 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
-    unsigned long long persistant_lim;
-    if(counters_size->size() < SD_NUM_PERSISTANT_FILES){
-        persistant_lim = -1;
-    } else{
-        vector<unsigned long long> temp_counters_size = *counters_size;
-        nth_element(temp_counters_size.begin(), temp_counters_size.begin() + SD_NUM_PERSISTANT_FILES, temp_counters_size.end(), std::greater{});
-        persistant_lim = temp_counters_size[SD_NUM_PERSISTANT_FILES];
-    }
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
-    cout << FORMAT_ATTR_VERBOSE("max_size_index", max_element(counters_size->begin(), counters_size->end())-counters_size->begin());
     cout << FORMAT_ATTR_VERBOSE("max_size", *max_element(counters_size->begin(), counters_size->end()));
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));
     cout << endl;
-#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, persistant_lim)
+#pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
         for(auto sig_it = (*counters_it)->sigs->begin(); sig_it != (*counters_it)->sigs->end(); sig_it++){
@@ -502,11 +490,6 @@ void RectManagerParallel::redistribute_sigs(){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
                     (*temp_counters)[occupancy_num]->allocate((*counters_packed_sizes)[occupancy_num], (*counters_size)[occupancy_num]);
-#ifdef SD_PACK_TO_FILE
-                    if((*counters_size)[occupancy_num] > persistant_lim){
-                        (*temp_counters)[occupancy_num]->psd->persistant = true;
-                    }
-#endif
                 }
             }
             if(SD_USE_PACKING){
