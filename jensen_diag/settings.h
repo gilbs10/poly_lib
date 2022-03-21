@@ -43,9 +43,9 @@ const int PREENTRY_BITS=8;
 const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 <<<<<<< HEAD
 const int NUM_OF_SIGS_BITS = 32;
-const filesystem::path PAS_SWAP_PATH = "/home/gilbe/temp/packed_array_swap/";
+const filesystem::path PAS_SWAP_PATH = "../packed_array_swap/";
 const string PAS_SWAP_EXT = "paf";
-const int PAS_BUFFER_SIZE = 512;
+const int PAS_BUFFER_SIZE = 2;
 
 =======
 const int NUM_OF_SIGS_BITS = 64;
