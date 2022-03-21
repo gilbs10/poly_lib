@@ -150,16 +150,19 @@ int main(){
     for (int i = 0; i < cases; ++i) {
         get_input_and_run();
     }
-//    PackedArraySwappable pas(192);
-//    for (int i = 1; i < 1+24; ++i) {
-//        pas.insert(0, i, 8);
+//    PackedArraySwappable pas(24*7);
+//    for (int i = 65; i < 65+24; ++i) {
+//        pas.insert(0, i, 7);
 //
 //    }
 //    pas.unswap();
+//    for (int i = 0; i < 24; ++i) {
+//        cout << pas.get(i*7, 7) << endl;
+//    }
 //    pas.swap_all();
 //    pas.unswap();
 //    for (int i = 0; i < 24; ++i) {
-//        cout << pas.get(i*8, 8) << endl;
+//        cout << pas.get(i*7, 7) << endl;
 //    }
-//    return 0;
+    return 0;
 }
