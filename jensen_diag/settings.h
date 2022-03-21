@@ -35,7 +35,7 @@ const bool USE_REVERSING = true;
  *******************************************************/
 const bool SD_USE_PACKING = true;
 #define SD_PACK_TO_FILE
-const int SD_NUM_PERSISTANT_FILES = 0;
+const int SD_NUM_PERSISTANT_FILES = 512;
 
 
 /*******************************************************
@@ -47,8 +47,6 @@ const int NUM_OF_SIGS_BITS = 32;
 const filesystem::path PAS_SWAP_PATH = "/home/gilbe/temp/packed_array_swap/";
 const string PAS_SWAP_EXT = "paf";
 const int PAS_BUFFER_SIZE = 512;
-
-
 
 /*******************************************************
  *                  Parallelization                    *
