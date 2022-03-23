@@ -58,7 +58,7 @@ public:
     vector<SigDict*>* counters;
     unordered_map<int, GenFunc*>* res;
     int num_of_threads;
-    bool top_half;
+    int col_part;
     long long sig_counter;
     RectManagerParallel(int w, int n, bool white_mode, int threads);
     ~RectManagerParallel();

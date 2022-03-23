@@ -324,7 +324,7 @@ void PartialRectManager::add_seed(){
 RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int threads) : status(w, n, white_mode){
     num_of_threads = threads;
     counters = new vector<SigDict*>(1, nullptr);
-    top_half = true;
+    col_part = 0;
     res = new unordered_map<int, GenFunc*>;
     sig_counter = 0;
 }
@@ -338,15 +338,15 @@ RectManagerParallel::~RectManagerParallel() {
 }
 
 int RectManagerParallel::next_target_k_pos() {
-    if(!top_half){
+    if(col_part == RM_REDIST_FREQ-1){
         return 0;
     } else {
-        return status.pat_length/2;
+        return (col_part+1)*(status.pat_length/RM_REDIST_FREQ);
     }
 }
 
 int RectManagerParallel::next_traget_col() {
-    if(!top_half){
+    if(col_part == RM_REDIST_FREQ-1){
         return status.col +1;
     } else {
         return status.col;
@@ -412,7 +412,8 @@ void RectManagerParallel::run_rectangle(){
             (*counters)[i] = (*managers)[i]->prev_counter;
             delete (*managers)[i];
         }
-        top_half = !top_half;
+        col_part += 1;
+        col_part %= RM_REDIST_FREQ;
     }
     delete managers;
 }
@@ -428,18 +429,16 @@ void RectManagerParallel::redistribute_sigs(){
     int c= 0;
     sig occupancy_num;
     int s,t;
-    if(!top_half){
-        s = 0;
-        t = status.pat_length/2;
-    } else {
-        s = status.pat_length/2;
+    s = status.k_pos;
+    t = next_target_k_pos();
+    if(t == 0){
         t = status.pat_length;
     }
-
-    vector<SigDict*>* temp_counters = new vector<SigDict*>(1<<(t-s), nullptr);
-    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(1<<(t-s), NUM_OF_SIGS_BITS);
-    vector<unsigned long long>* counters_size = new vector<unsigned long long>(1<<(t-s), 0);
-    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(1<<(t-s));
+    int occ_num = 1<<(status.pat_length - (t-s));
+    vector<SigDict*>* temp_counters = new vector<SigDict*>(occ_num, nullptr);
+    vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(occ_num, NUM_OF_SIGS_BITS);
+    vector<unsigned long long>* counters_size = new vector<unsigned long long>(occ_num, 0);
+    vector<omp_lock_t>* counters_locks = new vector<omp_lock_t>(occ_num);
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }

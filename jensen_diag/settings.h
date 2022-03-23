@@ -34,7 +34,7 @@ const bool USE_REVERSING = true;
  *                      SigDict                        *
  *******************************************************/
 const bool SD_USE_PACKING = true;
-//#define SD_PACK_TO_FILE
+#define SD_PACK_TO_FILE
 const double SD_PERSISTANT_THRESHOLD = 0.01;
 
 /*******************************************************
@@ -50,10 +50,11 @@ const int PAS_BUFFER_SIZE = 512;
 
 
 /*******************************************************
- *                  Parallelization                    *
+ *                    RectManager                      *
  *******************************************************/
 #define USE_PARALLEL
 const bool FIXED_NUM_OF_THREADS = true;
+const int RM_REDIST_FREQ = 3;
 
 /*******************************************************
  *                      Printing                       *

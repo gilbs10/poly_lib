@@ -67,7 +67,10 @@ bool BoundaryPattern::sealed(){
 
 sig BoundaryPattern::get_occupancy_num(int s, int t){
     sig occupancy_num = 0;
-    for (int i = s; i < t; ++i) {
+    for (int i = 0; i < pat_length; ++i) {
+        if(i >= s && i <= t){
+            continue;
+        }
         occupancy_num *= 2;
         if(pattern[i]){
             occupancy_num += 1;

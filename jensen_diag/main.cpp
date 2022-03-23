@@ -150,16 +150,29 @@ int main(){
     for (int i = 0; i < cases; ++i) {
         get_input_and_run();
     }
-//    PackedArraySwappable pas(192);
+//    PackedArraySwappable* pas = new PackedArraySwappable(200);
+//    u128_addable x,y,res;
+//    unsigned long long x64 = 1;
+//    x64 <<= 63;
+//    x = x64;
+//    y = 70;
+//    for (int i = 0; i < 66*2; ++i) {
+//        y += x;
+//    }
+//    cout << y << endl;
+//    ((PackedArray*)pas)->insert(0, y, 100);
+//
 //    for (int i = 1; i < 1+24; ++i) {
 //        pas.insert(0, i, 8);
 //
 //    }
-//    pas.unswap();
-//    pas.swap_all();
-//    pas.unswap();
+//    pas->unswap();
+//    pas->swap_all();
+//    pas->unswap();
 //    for (int i = 0; i < 24; ++i) {
 //        cout << pas.get(i*8, 8) << endl;
 //    }
-//    return 0;
+//    pas->fetch(0, &res, 100);
+//    cout << res << endl;
+    return 0;
 }
