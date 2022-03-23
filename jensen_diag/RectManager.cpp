@@ -341,7 +341,7 @@ int RectManagerParallel::next_target_k_pos() {
     if(col_part == RM_REDIST_FREQ-1){
         return 0;
     } else {
-        return (col_part+1)*(status.pat_length/RM_REDIST_FREQ);
+        return ((col_part+1)*status.pat_length)/RM_REDIST_FREQ;
     }
 }
 
