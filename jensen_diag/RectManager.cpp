@@ -491,7 +491,7 @@ void RectManagerParallel::redistribute_sigs(){
                 (*temp_counters)[occupancy_num] = new SigDict();
                 if(SD_USE_PACKING){
 #ifdef SD_PACK_TO_FILE
-                    if((*counters_packed_sizes)[occupancy_num] > persistant_size_threshold){
+                    if(SD_USE_PERSISTANT && (*counters_packed_sizes)[occupancy_num] > persistant_size_threshold){
                         (*temp_counters)[occupancy_num]->persistant = true;
                     }
 #endif
