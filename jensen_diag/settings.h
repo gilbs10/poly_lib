@@ -55,7 +55,7 @@ const int PAS_BUFFER_SIZE = 512;
  *******************************************************/
 #define USE_PARALLEL
 const bool FIXED_NUM_OF_THREADS = true;
-const int RM_REDIST_FREQ = 3;
+const int RM_REDIST_FREQ = 2;
 
 /*******************************************************
  *                      Printing                       *
