@@ -161,7 +161,7 @@ PackedArray &PackedArray::operator=(const PackedArray &other) {
 }
 
 PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize, bool persistant) : persistant(persistant) {
-    bit_sum = bitsize;
+    bit_sum = 0;
     buffer_pos = 0;
     for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {
         bit_buffer[i] = 0;
@@ -247,6 +247,7 @@ int PackedArraySwappable::insert(unsigned long long pos, unsigned long long x, i
         bit_buffer[i] |= x<<(slack-x_bits);
         buffer_pos += x_bits;
     }
+    bit_sum += x_bits;
     return x_bits;
 }
 int PackedArraySwappable::buffer_length() {

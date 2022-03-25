@@ -8,6 +8,7 @@
 SigDict::SigDict(){
     sigs = new sig_map();
     psd = nullptr;
+    num_of_elements = 0;
 #ifdef SD_PACK_TO_FILE
     persistant = false;
 #endif
@@ -92,6 +93,9 @@ void SigDict::unpack() {
 #endif
     int num_of_sigs;
     int pos = psd->fetch(0, &num_of_sigs, NUM_OF_SIGS_BITS);
+    if(num_of_sigs == 0){
+        num_of_sigs = num_of_elements;
+    }
     int sig_len;
     sig sig_num;
     sigs = new sig_map();
@@ -125,6 +129,7 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
 }
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
+    num_of_elements += 1;
     packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
     packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
     packed_pos += ((PackedArray*)psd)->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);

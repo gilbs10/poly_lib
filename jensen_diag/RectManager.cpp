@@ -435,6 +435,7 @@ void RectManagerParallel::redistribute_sigs(){
         t = status.pat_length;
     }
     int occ_num = 1<<(status.pat_length - (t-s));
+    unsigned long long persistant_size_threshold = 0;
     vector<SigDict*>* temp_counters = new vector<SigDict*>(occ_num, nullptr);
     vector<unsigned long long>* counters_packed_sizes = new vector<unsigned long long>(occ_num, NUM_OF_SIGS_BITS);
     vector<unsigned long long>* counters_size = new vector<unsigned long long>(occ_num, 0);
@@ -442,6 +443,7 @@ void RectManagerParallel::redistribute_sigs(){
     for (int i = 0; i < counters_locks->size(); ++i) {
         omp_init_lock(&((*counters_locks)[i]));
     }
+#ifndef SD_PACK_TO_FILE
     cout << FORMAT_TITLE_VERBOSE("SUM SIZE");
     cout << FORMAT_ATTR_VERBOSE("start_occ", s);
     cout << FORMAT_ATTR_VERBOSE("end_occ", t);
@@ -466,7 +468,7 @@ void RectManagerParallel::redistribute_sigs(){
         }
         (*counters_it)->pack();
     }
-    unsigned long long persistant_size_threshold = accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0);
+    persistant_size_threshold = accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0);
     persistant_size_threshold *= SD_PERSISTANT_THRESHOLD;
     cout << FORMAT_TITLE_VERBOSE("SIZE_SUMMED");
     cout << FORMAT_ATTR_VERBOSE("max_bit_size", *max_element(counters_packed_sizes->begin(), counters_packed_sizes->end()));
@@ -474,6 +476,7 @@ void RectManagerParallel::redistribute_sigs(){
     cout << FORMAT_ATTR_VERBOSE("sum_bit_size", accumulate(counters_packed_sizes->begin(), counters_packed_sizes->end(), 0));
     cout << FORMAT_ATTR_VERBOSE("sum_size", accumulate(counters_size->begin(), counters_size->end(), 0));
     cout << endl;
+#endif
 #pragma omp parallel for schedule(dynamic, 1) default(none) shared(counters, temp_counters, counters_packed_sizes, counters_size, counters_locks, s, t, cout, persistant_size_threshold)
     for(auto counters_it = counters->begin(); counters_it != counters->end(); counters_it++){
         (*counters_it)->unpack();
