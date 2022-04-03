@@ -24,9 +24,9 @@ public:
     PackedArraySwappable* psd;
     bool persistant;
 #else
-    unsigned long long num_of_elements;
     PackedArray* psd;
 #endif
+    unsigned long long num_of_elements;
     int packed_pos;
     SigDict();
     ~SigDict();
