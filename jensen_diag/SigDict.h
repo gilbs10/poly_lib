@@ -31,7 +31,7 @@ public:
     SigDict();
     ~SigDict();
     void add(sig sig_num, GenFunc &gf, bool new_cell);
-    void allocate(int bit_size, int num_of_elements);
+    void allocate(int bit_size, unsigned long long  num_of_elements);
     void append(sig sig_num, GenFunc &gf);
     bool is_empty();
     unsigned long long size() const;

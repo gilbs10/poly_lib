@@ -14,7 +14,11 @@ class u128_addable;
 class u128_full;
 class u64_addable_mod;
 
-int bit_size_64(unsigned long long);
+unsigned long long  bit_size_n(unsigned long long);
+unsigned long long  bit_size_n(__int128);
+unsigned long long  get_hi(__int128);
+unsigned long long  get_lo(__int128);
+
 
 class u128_addable{
     /* A very simple 128 bit integer using two long long which supports only addition.*/

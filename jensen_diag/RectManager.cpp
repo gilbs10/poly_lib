@@ -461,8 +461,8 @@ void RectManagerParallel::redistribute_sigs(){
             sig occupancy_num = bp.get_occupancy_num(s, t);
             omp_set_lock(&((*counters_locks)[occupancy_num]));
             (*counters_packed_sizes)[occupancy_num] += (PREENTRY_BITS
-                                                     +  bit_size_64(bp.get_sig_num())
-                                                     +  sig_it->second->bit_size());
+                                                        + bit_size_n(bp.get_sig_num())
+                                                        + sig_it->second->bit_size());
             (*counters_size)[occupancy_num] += 1;
             omp_unset_lock(&((*counters_locks)[occupancy_num]));
         }
