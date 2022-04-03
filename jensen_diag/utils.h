@@ -16,6 +16,7 @@ using namespace std;
  *                   Files & Memory                    *
  *******************************************************/
 filesystem::path get_available_fname(filesystem::path path, string extension);
+string gen_random_str(int n);
 float mem_usage();
 
 /*******************************************************

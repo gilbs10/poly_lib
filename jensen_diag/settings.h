@@ -34,7 +34,7 @@ const bool USE_REVERSING = true;
  *                      SigDict                        *
  *******************************************************/
 const bool SD_USE_PACKING = true;
-//#define SD_PACK_TO_FILE
+#define SD_PACK_TO_FILE
 const double SD_PERSISTANT_THRESHOLD = 0.01;
 const bool SD_USE_PERSISTANT = false;
 
