@@ -22,9 +22,9 @@ public:
     sig_map* sigs;
 #ifdef SD_PACK_TO_FILE
     PackedArraySwappable* psd;
-    unsigned long long num_of_elements;
     bool persistant;
 #else
+    unsigned long long num_of_elements;
     PackedArray* psd;
 #endif
     int packed_pos;
