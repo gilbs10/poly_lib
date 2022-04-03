@@ -5,11 +5,26 @@
 #include "data_types.h"
 #include "settings.h"
 
-int bit_size_64(unsigned long long x){
+unsigned long long  bit_size_n(unsigned long long x){
     if(x){
         return 64 - __builtin_clzll(x);
     }
     return 0;
+}
+
+unsigned long long  bit_size_n(__int128 x){
+    if(get_hi(x)){
+        return 64 + bit_size_n(get_hi(x));
+    }
+    return bit_size_n(get_lo(x));
+}
+
+unsigned long long get_hi(__int128 x){
+    return x>>64;
+}
+
+unsigned long long get_lo(__int128 x){
+    return (x<<64)>>64;
 }
 
 u128_addable::u128_addable() : hi(0), lo(0){
@@ -31,9 +46,9 @@ u128_addable::operator bool(){
 
 int u128_addable::bit_size(){
     if(hi){
-        return bit_size_64(hi)+64;
+        return bit_size_n(hi) + 64;
     }
-    return bit_size_64(lo);
+    return bit_size_n(lo);
 }
 
 ostream& operator<<(ostream& os, const u128_addable& x){
@@ -58,7 +73,7 @@ int u192_addable::bit_size() {
     if(hi){
         return hi.bit_size() + 64;
     }
-    return bit_size_64(lo);
+    return bit_size_n(lo);
 }
 ostream& operator<<(ostream& os, const u192_addable& x){
     os << "(" << x.hi.hi << ", " << x.hi.lo << ", " << x.lo << ")";

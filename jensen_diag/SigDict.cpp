@@ -64,7 +64,7 @@ void SigDict::pack() {
     unsigned long long bit_sum = NUM_OF_SIGS_BITS; //Num of signatures
     for(auto &it: *sigs){
         bit_sum += PREENTRY_BITS;
-        bit_sum += bit_size_64(it.first);
+        bit_sum += bit_size_n(it.first);
         bit_sum += it.second->bit_size();
     }
 #ifdef SD_PACK_TO_FILE
@@ -75,8 +75,8 @@ void SigDict::pack() {
 
     int pos = psd->insert(0, size(), NUM_OF_SIGS_BITS);
     for(auto &it: *sigs){
-        pos += psd->insert(pos, bit_size_64(it.first), PREENTRY_BITS);
-        pos += psd->insert(pos, it.first, bit_size_64(it.first));
+        pos += psd->insert(pos, bit_size_n(it.first), PREENTRY_BITS);
+        pos += psd->insert(pos, it.first, bit_size_n(it.first));
         pos += ((PackedArray*)psd)->insert(pos, *it.second->pgf, it.second->pgf->bit_sum);
         delete it.second;
     }
@@ -116,7 +116,7 @@ void SigDict::unpack() {
     psd = nullptr;
 }
 
-void SigDict::allocate(int bit_size, int num_of_elements) {
+void SigDict::allocate(int bit_size, unsigned long long num_of_elements) {
     delete sigs;
     sigs = nullptr;
 #ifdef SD_PACK_TO_FILE
@@ -130,7 +130,7 @@ void SigDict::allocate(int bit_size, int num_of_elements) {
 
 void SigDict::append(sig sig_num, GenFunc &gf) {
     num_of_elements += 1;
-    packed_pos += psd->insert(packed_pos, bit_size_64(sig_num), PREENTRY_BITS);
-    packed_pos += psd->insert(packed_pos, sig_num, bit_size_64(sig_num));
+    packed_pos += psd->insert(packed_pos, bit_size_n(sig_num), PREENTRY_BITS);
+    packed_pos += psd->insert(packed_pos, sig_num, bit_size_n(sig_num));
     packed_pos += ((PackedArray*)psd)->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
 }

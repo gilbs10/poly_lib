@@ -28,6 +28,7 @@ public:
     int insert(unsigned long long pos, u192_addable x, int x_bits);
     int insert(unsigned long long pos, u64_addable_mod x, int x_bits);
     int insert(unsigned long long pos, u128_full x, int x_bits);
+    int insert(unsigned long long pos, __int128 x, int x_bits);
     int insert(unsigned long long pos, PackedArray& x, int x_bits);
     int fetch(unsigned long long pos, int* x ,int x_bits) const;
     int fetch(unsigned long long pos, unsigned long long* x ,int x_bits) const;
@@ -35,6 +36,7 @@ public:
     int fetch(unsigned long long pos, u192_addable* x ,int x_bits) const;
     int fetch(unsigned long long pos, u64_addable_mod* x, int x_bits) const;
     int fetch(unsigned long long pos, u128_full* x, int x_bits) const;
+    int fetch(unsigned long long pos, __int128* x, int x_bits) const;
     unsigned long long get(unsigned long long pos, int x_bits) const;
     unsigned long long array_length();
     PackedArray &operator=(const PackedArray &other);

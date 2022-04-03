@@ -26,7 +26,7 @@ using namespace std;
 /*******************************************************
  *                  BoundryPattern                     *
  *******************************************************/
-#define LIMIT_SIG_64 //Use only when w<52, it uses 64 bit signatures instead of 128 bit. Faster and less memory.
+//#define LIMIT_SIG_64 //Use only when w<52, it uses 64 bit signatures instead of 128 bit. Faster and less memory.
 const bool USE_REVERSING = true;
 
 

@@ -152,14 +152,14 @@ bool GenFunc::is_empty(int mul){
     return max_n <= min_n;
 }
 
-void GenFunc::pack(bool repack_flag, int preentry_bits, int index_bits){
+void GenFunc::pack(bool repack_flag, unsigned long long  preentry_bits, unsigned long long  index_bits){
 #ifdef GF_USE_PACKING
     if(!repack_flag || pgf){
         return;
     }
-    int bit_sum = index_bits;
-    int element_bits[size()+1];
-    int c = 0;
+    unsigned long long  bit_sum = index_bits;
+    unsigned long long  element_bits[size()+1];
+    unsigned long long c = 0;
     for (int i = min_n; i < max_n; ++i)  {
         if(g_func[i]){
             element_bits[i] = g_func[i].bit_size();
@@ -174,7 +174,7 @@ void GenFunc::pack(bool repack_flag, int preentry_bits, int index_bits){
     pos += pgf->insert(pos, c, index_bits);
     for (int i = min_n; i < max_n; ++i) {
         if(g_func[i]){
-            pos += pgf->insert(pos, i, index_bits);
+            pos += pgf->insert(pos, (unsigned long long)i, index_bits);
             pos += pgf->insert(pos, element_bits[i], preentry_bits);
             pos += pgf->insert(pos, g_func[i], element_bits[i]);
         }

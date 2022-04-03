@@ -72,6 +72,16 @@ int PackedArray::insert(unsigned long long pos, u128_full x, int x_bits){
     return x_bits;
 }
 
+int PackedArray::insert(unsigned long long pos, __int128 x, int x_bits) {
+    int x_bits_old = x_bits;
+    if(x_bits > PA_CELL_SIZE){
+        pos += insert(pos, get_hi(x), x_bits-PA_CELL_SIZE);
+        x_bits=PA_CELL_SIZE;
+    }
+    insert(pos, get_lo(x), x_bits);
+    return x_bits_old;
+}
+
 int PackedArray::insert(unsigned long long pos, PackedArray& pa, int x_bits){
     for (int i = 0; i < pa.array_length() - 1; ++i) {
         pos += insert(pos, pa.bit_array[i], PA_CELL_SIZE);
@@ -132,6 +142,21 @@ int PackedArray::fetch(unsigned long long pos, u64_addable_mod* x, int x_bits) c
 int PackedArray::fetch(unsigned long long pos, u128_full* x, int x_bits) const{
     x->x = get(pos, x_bits);
     return x_bits;
+}
+
+int PackedArray::fetch(unsigned long long pos, __int128 *x, int x_bits) const {
+    int x_bits_old = x_bits;
+    unsigned long long hi = 0, lo;
+    if(x_bits > PA_CELL_SIZE){
+        hi = get(pos, x_bits-64);
+        pos += x_bits - PA_CELL_SIZE;
+        x_bits = PA_CELL_SIZE;
+    }
+    lo = get(pos, x_bits);
+    *x = hi;
+    (*x)<<=64;
+    *x+=lo;
+    return x_bits_old;
 }
 
 unsigned long long PackedArray::array_length() {

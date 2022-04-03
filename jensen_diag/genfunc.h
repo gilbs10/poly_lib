@@ -38,7 +38,7 @@ public:
     ~GenFunc();
     void add(GenFunc &gf2, int mul=0);
     bool is_empty(int mul = 0);
-    void pack(bool repack_flag = true ,int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
+    void pack(bool repack_flag = true ,unsigned long long  preentry_bits = PREENTRY_BITS, unsigned long long  index_bits = INDEX_BITS);
     bool unpack(int preentry_bits = PREENTRY_BITS, int index_bits = INDEX_BITS);
     gf_type at(int i);
     void set_at(int i, gf_type x);
