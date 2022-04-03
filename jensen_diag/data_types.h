@@ -11,6 +11,7 @@ using namespace std;
 
 extern int global_n;
 class u128_addable;
+class u192_addable;
 class u128_full;
 class u64_addable_mod;
 

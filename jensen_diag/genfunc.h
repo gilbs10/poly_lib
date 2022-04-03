@@ -10,7 +10,8 @@ class GenFunc;
 #include "data_types.h"
 
 #ifndef GF_MOD_CONST
-typedef u128_addable gf_type; // Slightly faster than u128_full
+//typedef u128_addable gf_type; // Slightly faster than u128_full
+typedef u192_addable gf_type; // Slightly faster than u128_full
 //typedef u128_full gf_type;
 #else
 typedef u64_addable_mod gf_type;
