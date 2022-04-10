@@ -132,7 +132,7 @@ u64_addable_mod::operator bool (){
     return x!=0;
 }
 int u64_addable_mod::bit_size(){
-    return bit_size_64(x);
+    return bit_size_n(x);
 }
 
 ostream& operator<<(ostream& os, const u64_addable_mod& x){
