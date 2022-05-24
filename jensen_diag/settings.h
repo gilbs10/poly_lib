@@ -18,7 +18,7 @@ using namespace std;
 //#define GF_CONST_SIZE 31
 //#define GF_MOD_CONST 4611686018427387903
 //#define GF_MOD_CONST 36028797018963968
-#define GF_MOD_CONST 281474976710655
+//#define GF_MOD_CONST 281474976710655
 //#define GF_MOD_CONST 255
 #define GF_USE_PACKING
 
@@ -45,6 +45,7 @@ const int PREENTRY_BITS=8;
 const int INDEX_BITS=7; // 6 For n<=63, 7 for higher. I wish 8 was needed.
 const int NUM_OF_SIGS_BITS = 32;
 const filesystem::path PAS_SWAP_PATH = "/home/gilbe/temp/packed_array_swap/";
+//const filesystem::path PAS_SWAP_PATH = "/media/gilbe/Samsung_T5/packed_array_swap/";
 const string PAS_SWAP_EXT = "paf";
 const int PAS_BUFFER_SIZE = 512;
 
@@ -56,7 +57,7 @@ const int PAS_BUFFER_SIZE = 512;
 #define USE_PARALLEL
 const bool FIXED_NUM_OF_THREADS = true;
 const int RM_REDIST_FREQ = 4;
-const int RM_TARGET_COL = 4;
+const int RM_TARGET_COL = 100;
 
 /*******************************************************
  *                      Printing                       *

@@ -50,6 +50,7 @@ public:
     filesystem::path bit_file_name;
     bool persistant;
     PackedArraySwappable(unsigned long long bitsize, bool persistant = false);
+    PackedArraySwappable(filesystem::path file_name, bool persistant = false);
     ~PackedArraySwappable();
     void create_file();
     void delete_file();

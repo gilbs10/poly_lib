@@ -29,6 +29,7 @@ public:
     unsigned long long num_of_elements;
     int packed_pos;
     SigDict();
+    SigDict(filesystem::path pas_file);
     ~SigDict();
     void add(sig sig_num, GenFunc &gf, bool new_cell);
     void allocate(int bit_size, unsigned long long  num_of_elements);

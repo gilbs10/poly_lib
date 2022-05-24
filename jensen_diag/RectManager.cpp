@@ -329,6 +329,24 @@ RectManagerParallel::RectManagerParallel(int w, int n, bool white_mode, int thre
     sig_counter = 0;
 }
 
+
+RectManagerParallel::RectManagerParallel(int w, int n, int col, bool white_mode, int threads) : status(w, n, white_mode){
+    num_of_threads = threads;
+    status.col = col;
+    counters = new vector<SigDict*>(0);
+    for (const auto & entry : filesystem::directory_iterator(PAS_SWAP_PATH)){
+        cout << entry << endl;
+        cout << entry.path() << endl;
+        cout << entry.path().extension() << endl;
+        if(entry.path().extension() == "."+PAS_SWAP_EXT) {
+            counters->push_back(new SigDict(entry.path()));
+        }
+    }
+    col_part = 0;
+    res = new unordered_map<int, GenFunc*>;
+    sig_counter = 0;
+}
+
 RectManagerParallel::~RectManagerParallel() {
     delete counters;
     for(auto &gf_it: *res){
@@ -338,15 +356,15 @@ RectManagerParallel::~RectManagerParallel() {
 }
 
 int RectManagerParallel::next_target_k_pos() {
-    if(col_part == RM_REDIST_FREQ-1){
+    if(col_part == get_flexible_redist_freq()-1){
         return 0;
     } else {
-        return ((col_part+1)*status.pat_length)/RM_REDIST_FREQ;
+        return ((col_part+1)*status.pat_length)/get_flexible_redist_freq();
     }
 }
 
 int RectManagerParallel::next_traget_col() {
-    if(col_part == RM_REDIST_FREQ-1){
+    if(col_part == get_flexible_redist_freq()-1){
         return status.col +1;
     } else {
         return status.col;
@@ -394,7 +412,7 @@ void RectManagerParallel::run_rectangle(){
         }
         sort(managers->begin(), managers->end(), PRMpointerGreater);
         if(FIXED_NUM_OF_THREADS){
-            omp_set_num_threads(num_of_threads);
+            omp_set_num_threads(get_flexible_num_of_threads());
         }
         #pragma omp parallel for schedule(dynamic, 1) default(none) shared(managers)
         for (int i = 0; i < managers->size(); ++i) {
@@ -413,7 +431,7 @@ void RectManagerParallel::run_rectangle(){
             delete (*managers)[i];
         }
         col_part += 1;
-        col_part %= RM_REDIST_FREQ;
+        col_part %= get_flexible_redist_freq();
     }
     delete managers;
 }
@@ -527,4 +545,18 @@ void RectManagerParallel::count_res(unordered_map<int, GenFunc*>* res_to_add){
         }
         (*res)[it.first]->add(*it.second);
     }
+}
+
+int RectManagerParallel::get_flexible_num_of_threads() {
+    if(status.col <26){
+        return 31;
+    }
+    return 12;
+}
+
+int RectManagerParallel::get_flexible_redist_freq() {
+    if(status.col <26){
+        return 7;
+    }
+    return 2;
 }

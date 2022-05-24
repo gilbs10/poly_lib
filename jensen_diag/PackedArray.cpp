@@ -4,6 +4,8 @@
 
 #include "PackedArray.h"
 
+using namespace std;
+
 const int PA_CELL_SIZE = 64;
 
 PackedArray::PackedArray() : bit_sum(0), bit_array(nullptr) {
@@ -192,6 +194,15 @@ PackedArraySwappable::PackedArraySwappable(unsigned long long bitsize, bool pers
         bit_buffer[i] = 0;
     }
     create_file();
+}
+
+PackedArraySwappable::PackedArraySwappable(filesystem::path file_name, bool persistant){
+    bit_file_name = file_name;
+    bit_sum = std::filesystem::file_size(bit_file_name)*8;
+    buffer_pos = 0;
+    for (int i = 0; i < PAS_BUFFER_SIZE; ++i) {
+        bit_buffer[i] = 0;
+    }
 }
 
 PackedArraySwappable::~PackedArraySwappable() {

@@ -14,6 +14,15 @@ SigDict::SigDict(){
 #endif
 }
 
+SigDict::SigDict(filesystem::path pas_file){
+    sigs = nullptr;
+    psd = new PackedArraySwappable(pas_file, false);
+    num_of_elements = 0;
+#ifdef SD_PACK_TO_FILE
+    persistant = false;
+#endif
+}
+
 SigDict::~SigDict(){
     if(sigs){
         for(auto &sig_it: *sigs){

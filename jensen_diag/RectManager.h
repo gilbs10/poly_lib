@@ -61,6 +61,7 @@ public:
     int col_part;
     long long sig_counter;
     RectManagerParallel(int w, int n, bool white_mode, int threads);
+    RectManagerParallel(int w, int n, int col, bool white_mode, int threads);
     ~RectManagerParallel();
     void run_rectangle();
     void count_res(unordered_map<int, GenFunc*>* res);
@@ -68,6 +69,9 @@ public:
     void redistribute_sigs();
     int next_traget_col();
     int next_target_k_pos();
+
+    [[maybe_unused]] int get_flexible_num_of_threads();
+    int get_flexible_redist_freq();
 };
 
 #endif //JENSEN_DIAG_RECTMANAGER_H

@@ -78,6 +78,72 @@ gf_type count_rect(int w, int n, bool wm, int num_of_threads){
     return c;
 }
 
+
+gf_type resume_rect(int w, int n, int col, bool wm, int num_of_threads){
+    gf_type c = 0;
+    global_n = n;
+#ifdef LIMIT_SIG_64
+    if(w >= 52){
+        cout << FORMAT_TITLE("WIDTH TOO WIDE");
+        cout << FORMAT_ATTR("Size", n);
+        cout << FORMAT_ATTR("Width", w);
+        cout << FORMAT_ATTR("White mode", wm);
+        cout << endl;
+        return 0;
+    }
+#endif
+    cout << FORMAT_TITLE("RESUMING RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("col", col);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << endl;
+#ifdef USE_PARALLEL
+    RectManagerParallel* rm = new RectManagerParallel(w, n, col, bool(wm), num_of_threads);
+#else
+    RectManager* rm = new RectManager(w, n, bool(wm));
+#endif
+    rm->run_rectangle();
+    for (int j = w; j <= n; ++j) {
+        if (rm->res->find(j) != rm->res->end()){
+            c += (*rm->res)[j]->at(n);
+            if(PRINT_RES_BY_COL){
+                for (int i = 1; i <= n; ++i) {
+                    if((*rm->res)[j]->at(i)){
+                        cout << FORMAT_TITLE("RESULT WIDTH COL");
+                        cout << FORMAT_ATTR("Run_Size", n);
+                        cout << FORMAT_ATTR("Res_Size", i);
+                        cout << FORMAT_ATTR("Width", w);
+                        cout << FORMAT_ATTR("Column", j);
+                        cout << FORMAT_ATTR("White mode", wm);
+                        cout << FORMAT_ATTR("Count", (*rm->res)[j]->at(i));
+                        cout << endl;
+                    }
+                }
+            }
+            if(j > w){
+                c += (*rm->res)[j]->at(n);
+            }
+        }
+    }
+    cout << FORMAT_TITLE("SIGS RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << FORMAT_ATTR("Sigs", rm->sig_counter);
+    cout << endl;
+    sigs += rm->sig_counter;
+    cout << FORMAT_TITLE("RESULT RECT");
+    cout << FORMAT_ATTR("Size", n);
+    cout << FORMAT_ATTR("Width", w);
+    cout << FORMAT_ATTR("White mode", wm);
+    cout << FORMAT_ATTR("Count", c);
+    cout << endl;
+    delete rm;
+    return c;
+}
+
+
 void count(int n, int num_of_threads){
     sigs = 0;
     gf_type c = 0;
@@ -115,32 +181,47 @@ void run_all(int n1, int n2, int num_of_threads = 1) {
 }
 
 void get_input_and_run(){
-    cout << "Run rectangle (r) or full size (n)?" << endl;
+    cout << "Run rectangle (r), full size (n) or continue (c)?" << endl;
     char run_type;
     cin >> run_type;
     int n1, n2, num_of_threads;
-    int n,w;
-    if(run_type == 'n'){
-        cout << "Enter sizes to from and to:" << endl;
-        cin >> n1 >> n2;
-        cout << "Max number of threads: " << omp_get_max_threads() << endl;
-        cout << "Enter num of threads to run on:" << endl;
-        cin >> num_of_threads;
-        run_all(n1, n2, num_of_threads);
-    } else {
-        cout << "Enter size:" << endl;
-        cin >> n;
-        cout << "Enter width:" << endl;
-        cin >> w;
-        cout << "White mode? (y/n):" << endl;
-        char wm;
-        cin >> wm;
-        cout << "Enter num of threads to run on:" << endl;
-        cin >> num_of_threads;
-//        print_time();
-        cout << count_rect(w,n,wm == 'y',num_of_threads) << endl;
-//        print_time();
+    int n,w, col;
+    char wm;
+    switch (run_type) {
+        case 'n':
+            cout << "Enter sizes to from and to:" << endl;
+            cin >> n1 >> n2;
+            cout << "Max number of threads: " << omp_get_max_threads() << endl;
+            cout << "Enter num of threads to run on:" << endl;
+            cin >> num_of_threads;
+            run_all(n1, n2, num_of_threads);
+            break;
+        case 'r':
+            cout << "Enter size:" << endl;
+            cin >> n;
+            cout << "Enter width:" << endl;
+            cin >> w;
+            cout << "White mode? (y/n):" << endl;
+            cin >> wm;
+            cout << "Enter num of threads to run on:" << endl;
+            cin >> num_of_threads;
+            cout << count_rect(w,n,wm == 'y',num_of_threads) << endl;
+            break;
+        case 'c':
+            cout << "Enter size:" << endl;
+            cin >> n;
+            cout << "Enter width:" << endl;
+            cin >> w;
+            cout << "Enter current column:" << endl;
+            cin >> w;
+            cout << "White mode? (y/n):" << endl;
+            cin >> wm;
+            cout << "Enter num of threads to run on:" << endl;
+            cin >> num_of_threads;
+            cout << resume_rect(w,n, col ,wm == 'y',num_of_threads) << endl;
+            break;
     }
+
 }
 
 int main(){
