@@ -548,15 +548,17 @@ void RectManagerParallel::count_res(unordered_map<int, GenFunc*>* res_to_add){
 }
 
 int RectManagerParallel::get_flexible_num_of_threads() {
-    if(status.col <26){
-        return 31;
-    }
-    return 12;
+//    if(status.col <26){
+//        return 31;
+//    }
+//    return 12;
+    return num_of_threads;
 }
 
 int RectManagerParallel::get_flexible_redist_freq() {
-    if(status.col <26){
-        return 7;
-    }
-    return 2;
+//    if(status.col <26){
+//        return 7;
+//    }
+//    return 2;
+    return RM_REDIST_FREQ;
 }
