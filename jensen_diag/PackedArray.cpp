@@ -28,6 +28,9 @@ int PackedArray::insert(unsigned long long pos, unsigned long long x, int x_bits
 }
 
 unsigned long long PackedArray::get(unsigned long long pos, int x_bits) const {
+    if(x_bits == 0){
+        return 0;
+    }
     int slack = PA_CELL_SIZE - (pos % PA_CELL_SIZE);
     int i = pos / PA_CELL_SIZE;
     unsigned long long res = 0;
@@ -85,6 +88,9 @@ int PackedArray::insert(unsigned long long pos, __int128 x, int x_bits) {
 }
 
 int PackedArray::insert(unsigned long long pos, PackedArray& pa, int x_bits){
+    if(x_bits == 0){
+        return 0;
+    }
     for (int i = 0; i < pa.array_length() - 1; ++i) {
         pos += insert(pos, pa.bit_array[i], PA_CELL_SIZE);
     }

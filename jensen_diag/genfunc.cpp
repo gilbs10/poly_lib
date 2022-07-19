@@ -108,18 +108,18 @@ GenFunc::GenFunc(PackedArray &new_pgf, int pos) {
     int start_pos = pos;
     g_func = new gf_type[global_n+1]();
     pgf = nullptr;
-    max_n = 0;
-    min_n = global_n+1;
+    unsigned long long temp;
+    pos += new_pgf.fetch(pos, &temp, INDEX_BITS);
+    min_n = temp;
+    pos += new_pgf.fetch(pos, &temp, INDEX_BITS);
+    max_n = temp;
     int entries, index, x_bits;
-    pos += new_pgf.fetch(pos, &entries, INDEX_BITS);
-    for (int i = 0; i < entries; ++i) {
-        pos += new_pgf.fetch(pos, &index, INDEX_BITS);
+    for (int i = min_n; i < max_n; ++i) {
         pos += new_pgf.fetch(pos, &x_bits, PREENTRY_BITS);
-        pos += new_pgf.fetch(pos, g_func+index, x_bits);
-        max_n = max(max_n, index+1);
-        min_n = min(min_n, index);
+        pos += new_pgf.fetch(pos, g_func+i, x_bits);
     }
     pack();
+
 }
 
 
@@ -157,27 +157,34 @@ void GenFunc::pack(bool repack_flag, unsigned long long  preentry_bits, unsigned
     if(!repack_flag || pgf){
         return;
     }
-    unsigned long long  bit_sum = index_bits;
+    unsigned long long  bit_sum = 2*index_bits;
     unsigned long long  element_bits[size()+1];
     unsigned long long c = 0;
-    for (int i = min_n; i < max_n; ++i)  {
+    unsigned long long temp_min = global_n+1;
+    unsigned long long temp_max = 0;
+    bool empty = true;
+    for (int i = 0; i < global_n+1; ++i)  {
         if(g_func[i]){
+            empty = false;
             element_bits[i] = g_func[i].bit_size();
-            bit_sum += element_bits[i] + preentry_bits + index_bits;
+            bit_sum += element_bits[i];
             c++;
+            temp_min = min(temp_min, i);
+            temp_max = max(temp_max, i+1);
         } else {
             element_bits[i] = 0;
         }
     }
+    if(!empty){
+        bit_sum += preentry_bits*(temp_max-temp_min);
+    }
     pgf = new PackedArray(bit_sum);
     int pos = 0;
-    pos += pgf->insert(pos, c, index_bits);
-    for (int i = min_n; i < max_n; ++i) {
-        if(g_func[i]){
-            pos += pgf->insert(pos, (unsigned long long)i, index_bits);
-            pos += pgf->insert(pos, element_bits[i], preentry_bits);
-            pos += pgf->insert(pos, g_func[i], element_bits[i]);
-        }
+    pos += pgf->insert(pos, temp_min, index_bits);
+    pos += pgf->insert(pos, temp_max, index_bits);
+    for (int i = temp_min; i < temp_max; ++i) {
+        pos += pgf->insert(pos, element_bits[i], preentry_bits);
+        pos += pgf->insert(pos, g_func[i], element_bits[i]);
     }
     delete[](this->g_func);
     g_func = nullptr;
@@ -191,17 +198,16 @@ bool GenFunc::unpack(int preentry_bits, int index_bits){
         return false;
     }
     g_func = new gf_type[global_n+1]();
-    max_n = 0;
-    min_n = global_n+1;
     int entries, index, x_bits;
     int pos = 0;
-    pos = pgf->fetch(pos, &entries, index_bits);
-    for (int i = 0; i < entries; ++i) {
-        pos += pgf->fetch(pos, &index, index_bits);
+    unsigned long long temp;
+    pos += pgf->fetch(pos, &temp, index_bits);
+    min_n = temp;
+    pos += pgf->fetch(pos, &temp, index_bits);
+    max_n = temp;
+    for (int i = min_n; i < max_n; ++i) {
         pos += pgf->fetch(pos, &x_bits, preentry_bits);
-        pos += pgf->fetch(pos, g_func+index, x_bits);
-        max_n = max(max_n, index+1);
-        min_n = min(min_n, index);
+        pos += pgf->fetch(pos, g_func+i, x_bits);
     }
     delete(pgf);
     pgf = nullptr;
