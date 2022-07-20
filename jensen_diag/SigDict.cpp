@@ -140,6 +140,6 @@ void SigDict::allocate(int bit_size, unsigned long long num_of_elements) {
 void SigDict::append(sig sig_num, GenFunc &gf) {
     num_of_elements += 1;
     packed_pos += psd->insert(packed_pos, bit_size_n(sig_num), PREENTRY_BITS);
-    packed_pos += psd->insert(packed_pos, sig_num, bit_size_n(sig_num));
+    packed_pos += psd->PackedArray::insert(packed_pos, sig_num, bit_size_n(sig_num));
     packed_pos += ((PackedArray*)psd)->insert(packed_pos, *gf.pgf, gf.pgf->bit_sum);
 }
