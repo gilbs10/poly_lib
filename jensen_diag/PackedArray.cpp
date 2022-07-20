@@ -162,8 +162,8 @@ int PackedArray::fetch(unsigned long long pos, __int128 *x, int x_bits) const {
     }
     lo = get(pos, x_bits);
     *x = hi;
-    (*x)<<=64;
-    *x+=lo;
+    *x = (*x)<<64;
+    *x = (*x) + lo;
     return x_bits_old;
 }
 

@@ -1,11 +1,10 @@
-target_w = 29
 min_n = 70
 max_n = 70
 ns = range(min_n, max_n+1)
 cpus = 31
 # exclude_widths = [31,32] + list(range(52,max_n+1))
 # exclude_widths = list(range(target_w)) + list(range(target_w+1,max_n+1))
-exclude_widths = list(range(29,100))
+exclude_widths = list(range(1,50))
 # exclude_widths = list(range(67))
 c = 0
 for n in ns:

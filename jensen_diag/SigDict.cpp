@@ -85,7 +85,7 @@ void SigDict::pack() {
     int pos = psd->insert(0, size(), NUM_OF_SIGS_BITS);
     for(auto &it: *sigs){
         pos += psd->insert(pos, bit_size_n(it.first), PREENTRY_BITS);
-        pos += psd->insert(pos, it.first, bit_size_n(it.first));
+        pos += psd->PackedArray::insert(pos, it.first, bit_size_n(it.first));
         pos += ((PackedArray*)psd)->insert(pos, *it.second->pgf, it.second->pgf->bit_sum);
         delete it.second;
     }
@@ -110,7 +110,7 @@ void SigDict::unpack() {
     sigs = new sig_map();
     for (int i = 0; i < num_of_sigs; ++i) {
         pos += psd->fetch(pos, &sig_len, PREENTRY_BITS);
-        pos += psd->fetch(pos, &sig_num, sig_len);
+        pos += psd->PackedArray::fetch(pos, &sig_num, sig_len);
         if(sigs->find(sig_num) == sigs->end()){
             (*sigs)[sig_num] = new GenFunc(*psd, pos);;
             pos += (*sigs)[sig_num]->pgf->bit_sum;
