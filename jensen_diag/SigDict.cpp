@@ -100,7 +100,7 @@ void SigDict::unpack() {
 #ifdef SD_PACK_TO_FILE
         psd->unswap();
 #endif
-    int num_of_sigs;
+    int num_of_sigs = 0;
     int pos = psd->fetch(0, &num_of_sigs, NUM_OF_SIGS_BITS);
     if(num_of_sigs == 0){
         num_of_sigs = num_of_elements;
