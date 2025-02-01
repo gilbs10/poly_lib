@@ -6,6 +6,7 @@
 #include <omp.h>
 #include <algorithm>
 #include <iostream>
+#include <numeric>
 #include "settings.h"
 
 //
